@@ -97,6 +97,8 @@ for (const T of ZH.TOPICS) for (const skill of T.skills) for (const lv of [1, 2,
     if (m === "order") addPair(q.items.map(x => x.split("|")[0]).join(""), q.items.map(x => x.split("|")[1]).join(" "));
   }
 }
+// every tone-drill word (so the coverage check doesn't depend on which ones were drawn at random)
+ZH._toneWords.forEach(w => addPair(w.zh, w.py));
 // all word-bank words and their sentences, and every hand-written phrase and question
 Object.keys(ZH.WORDS).forEach(th => ZH.wordList(th).forEach(w => { addPair(w.zh, w.py); ZH.framesOf(w).forEach(f => addPair(f.zh, f.py)); }));
 ZH.TOPICS.forEach(T => T.skills.forEach(s => {

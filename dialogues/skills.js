@@ -277,7 +277,7 @@ const SKILLS = [
       <li>🧧 <b>過年</b> Chinese New Year: people go home to their family. <b>你來我家過年吧</b> come and spend New Year with us.</li></ul>`,
     dialogues:[
       { title:"Renting a flat", lines:[
-        ["A", "這個房子一個月房租多少？", "Zhège fángzi yí ge yuè fángzū duōshǎo?", "How much is the rent for this flat a month?"],
+        ["A", "這間房子一個月房租多少？", "Zhè jiān fángzi yí ge yuè fángzū duōshǎo?", "How much is the rent for this flat a month?"],
         ["B", "一萬八千塊。有兩個房間、一個客廳和一個廚房。", "Yíwàn bāqiān kuài. Yǒu liǎng ge fángjiān, yí ge kètīng hé yí ge chúfáng.", "18,000 dollars. There are two bedrooms, a living room and a kitchen."],
         ["A", "有冷氣嗎？", "Yǒu lěngqì ma?", "Is there air conditioning?"],
         ["B", "有，每個房間都有冷氣，也有家具。", "Yǒu, měi ge fángjiān dōu yǒu lěngqì, yě yǒu jiājù.", "Yes, every room has air conditioning, and it's furnished."],
