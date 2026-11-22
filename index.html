@@ -59,7 +59,16 @@ details[open].panel > summary::after{content:"▴"}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;color:var(--muted);margin:8px 0}
 .legend i{display:inline-block;width:.9em;height:.9em;border-radius:3px;vertical-align:-.1em;margin-right:4px}
 .wchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.wchip{border-radius:8px;padding:3px 7px;background:var(--key);color:var(--muted);font-size:1.05rem;line-height:1.2;text-align:center}
+.wchip{border:2px solid transparent;border-radius:8px;padding:3px 7px;background:var(--key);color:var(--muted);font-size:1.05rem;line-height:1.2;text-align:center}
+.wchip.sel{border-color:var(--accent)}
+.wdetail{position:sticky;top:8px;z-index:2;display:flex;align-items:center;gap:14px;background:var(--card);border:2px solid var(--accent);border-radius:16px;
+  padding:10px 14px;margin:10px 0;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.wdetail:empty{display:none}
+.wdetail .hz{font-size:2rem;font-weight:800}
+.wdetail .py{color:var(--accent);font-weight:700;font-size:1.1rem}
+.wdetail .en{font-size:1.05rem}
+.wdetail small{display:block;color:var(--muted)}
+.wdetail button{margin-left:auto;font-size:1.6rem;background:var(--gold);color:var(--gold-ink);border:none;border-radius:14px;padding:4px 12px}
 .wchip small{display:block;font-size:.7rem}
 </style>
 </head>
@@ -301,16 +310,35 @@ function renderTocfl(){
   $("#tocflSummary").textContent = `✓ ${known} known · ◐ ${heard} heard · of ${ZH.TOCFL.length} words (Novice 1 to A1)`;
   $("#tocflBody").innerHTML = `<p class="muted">The words of Taiwan's official test (TOCFL). A word turns <b>yellow</b> when you've heard it in an exercise
       and <b>green</b> after 3 right answers with it. Every word of Novice 1, Novice 2 and A1 is in the exercises.</p>
-    <div class="legend"><span><i style="background:#a6e5c1"></i>known</span><span><i style="background:#fbe1a0"></i>heard</span><span><i style="background:var(--grey)"></i>not yet</span></div>` +
+    <div class="legend"><span><i style="background:#a6e5c1"></i>known</span><span><i style="background:#fbe1a0"></i>heard</span><span><i style="background:var(--grey)"></i>not yet</span>
+      <span>👆 tap a word to hear it and see its meaning</span></div>
+    <div class="wdetail" id="wdetail" aria-live="polite"></div>` +
     LEVELS.map(([lv, name, zh]) => {
       const n = count(lv), k = count(lv, "known"), h = count(lv, "heard");
       return `<div class="lvl"><h3>${name} <span class="muted" style="font-weight:400">${zh}</span><small>${k} known · ${h} heard · ${n} words</small></h3>
         <div class="bar" role="img" aria-label="${k} known, ${h} heard, ${n - k - h} not yet"><span class="known" style="width:${k / n * 100}%"></span><span class="heard" style="width:${h / n * 100}%"></span></div>
         <details><summary class="muted" style="cursor:pointer;margin-top:6px">Show the words</summary>
-          <div class="wchips">${ZH.TOCFL.map((w, i) => w[2] !== lv ? "" : `<span class="wchip ${st[i]}">${ZH.esc(w[0].split("/")[0])}<small>${ZH.esc(w[1].split("/")[0])}</small></span>`).join("")}</div>
+          <div class="wchips">${ZH.TOCFL.map((w, i) => w[2] !== lv ? "" : `<button class="wchip ${st[i]}" data-w="${i}" title="${ZH.esc(w[3] || "")}">${ZH.esc(w[0].split("/")[0])}<small>${ZH.esc(w[1].split("/")[0].trim())}</small></button>`).join("")}</div>
         </details></div>`;
     }).join("");
 }
+
+/* tapping a word: say it, and show its pinyin, meaning and how often it has been heard */
+function showWord(i){
+  const [forms, py, lv, en, example] = ZH.TOCFL[i], zh = forms.split("/")[0], st = P.wordStatus(i), seen = P.wordCount(i);
+  const status = st === "known" ? "✓ known" : st === "heard" ? "◐ heard" + (seen ? ` ${seen[0]} time${seen[0] === 1 ? "" : "s"}, ${seen[1]} right` : "") : "○ not heard yet";
+  const other = forms.split("/").slice(1).join(" · ");
+  $("#wdetail").innerHTML = `<span class="hz">${ZH.esc(zh)}</span><div><span class="py">${ZH.esc(py.split("/")[0].trim())}</span>
+    <span class="en">${ZH.esc(en || "")}</span><small>${["", "Novice 1", "Novice 2", "Beginner A1"][lv]} · ${status}${other ? ` · also written ${ZH.esc(other)}` : ""}${example ? ` · 🔊 in: ${ZH.esc(example)}` : ""}</small></div>
+    <button data-say="${i}" aria-label="Listen again">🔊</button>`;
+  document.querySelectorAll("#tocflBody .wchip.sel").forEach(b => b.classList.remove("sel"));
+  const chip = document.querySelector(`#tocflBody .wchip[data-w="${i}"]`); if (chip) chip.classList.add("sel");
+  ZH.speak(example || zh, { rate:.75 });
+}
+$("#tocflBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-w]"); if (b){ showWord(+b.dataset.w); return; }
+  const s = e.target.closest("[data-say]"); if (s){ const w = ZH.TOCFL[+s.dataset.say]; ZH.speak(w[4] || w[0].split("/")[0], { rate:.75 }); }
+});
 
 /* ---------- settings and voice ---------- */
 function renderSettings(){

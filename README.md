@@ -18,7 +18,9 @@ It's built like the maths app (`~/math`) and `~/git/lengua`, and reuses their de
 
 **Level:** every word of TOCFL **Novice 1, Novice 2 and Beginner A1** (741 words) is heard on its own somewhere.
 The **📖 TOCFL words** panel on the main page shows each Novice 1 / Novice 2 / A1 word as not yet / heard / known
-(known = 3 right answers in questions where you heard it).
+(known = 3 right answers in questions where you heard it). Tap a word to hear it and see its pinyin and English meaning.
+The meanings come from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cedict) (CC BY-SA 4.0), many rewritten by hand
+for a beginner (see `MEANING` in `tools/make_tocfl.py`).
 
 Every skill has 3 levels: get 8 out of 10 to unlock the next, pass level 3 for a ⭐.
 The **每日聽力 Daily listening** session on the main page mixes ~12 questions: a tone warm-up, numbers, the skills that need it most,
@@ -56,7 +58,7 @@ shared/engine.js      question engine: speaking (Taiwan voice, two speakers), �
 shared/progress.js    saving, levels, stars, daily streak, settings, backup
 shared/topic.js       a topic page: skill tabs, tip card, 3 levels, stars
 shared/zh.js          numbers / prices / times / dates in characters + pinyin (Taiwan usage: 兩百, 兩點), tones, the 一 tone change
-shared/tocfl.js       the TOCFL Novice 1 / Novice 2 / A1 list for the TOCFL map (made by tools/make_tocfl.py)
+shared/tocfl.js       the TOCFL Novice 1 / Novice 2 / A1 list with English meanings, for the TOCFL map (made by tools/make_tocfl.py)
 shared/words.js       the word bank by theme (TOCFL Novice 1 – A1 + everyday Taiwan words), with the sentences each word is heard in
 tones/ … dialogues/   one folder per topic: index.html + skills.js (sentences/little.js: the hand-written little-words sentences)
 tests/                automated checks, and voices.html to see the voices on a device

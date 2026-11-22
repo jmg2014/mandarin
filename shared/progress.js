@@ -45,6 +45,7 @@ const P = ZH.prog = {
   /* TOCFL words heard (the TOCFL map): { index in ZH.TOCFL: [times heard, times answered right] }.
      A word counts as known after 3 right answers in questions where it was heard. */
   hear(ids, ok){ ids.forEach(i => { const w = data.words[i] || (data.words[i] = [0, 0]); w[0]++; if (ok) w[1]++; }); P.save(); },
+  wordCount(i){ return data.words[i] || [0, 0]; },
   wordStatus(i){ const w = data.words[i]; return !w ? "new" : w[1] >= 3 ? "known" : "heard"; },
   /* answers per day: { "2026-11-22": { n, ok, ms } } */
   logDay(ok, ms){

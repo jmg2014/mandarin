@@ -114,6 +114,11 @@ try {
   ok("daily session starts with tones", mix[0]._skill.startsWith("to-") && mix[1]._skill.startsWith("to-"));
   ok("main page shows 6 topics", W.document.querySelectorAll("#topics .mode").length === 6);
   ok("main page shows the TOCFL map with 741 words", W.document.querySelectorAll("#tocflBody .wchip").length === 741);
+  const chip = [...W.document.querySelectorAll("#tocflBody .wchip")].find(b => b.textContent.startsWith("咖啡"));
+  chip.click();
+  const det = W.document.querySelector("#wdetail").textContent;
+  ok("tapping a TOCFL word shows its pinyin and English", det.includes("咖啡") && det.includes("kāfēi") && /coffee/i.test(det));
+  ok("every TOCFL word has an English meaning", W.ZH.TOCFL.every(w => w[3] && w[3].length > 1));
 } catch(e){ ok("main page loads: " + e.message, false); }
 
 out.push("DONE");
