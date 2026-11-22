@@ -37,7 +37,7 @@ BASIC = {"Novice 1", "Novice 2", "A1"}
 EXTRAS = """
 珍珠奶茶 奶茶 捷運 捷運站 便利商店 機車 夜市 高鐵 光臨 歡迎光臨 掰掰 加油 半糖 少冰 甜度 冰塊 載具 牛肉麵 刷卡 便當
 台北 台中 台南 高雄 花蓮 台北車站 西班牙 英國 法國 德國 韓國 美國 日本 台灣
-小美 小明 大衛 安娜 王 牠 牠們 煮飯 白飯 客運 試穿 驗 上午 早安 晚安 青菜 試試看 三明治 夏天 冬天 姊姊 醫生 下個月 多久 左右 收 找 您 盤 鉛筆 拔 靶 姨 椅 億 屋 無 霧 躺 燙 詩 史 騎
+小美 小明 大衛 安娜 王 讓座 棟 早餐 牠 牠們 煮飯 白飯 客運 試穿 驗 上午 早安 晚安 青菜 試試看 三明治 夏天 冬天 姊姊 醫生 下個月 多久 左右 收 找 您 盤 鉛筆 拔 靶 姨 椅 億 屋 無 霧 躺 燙 詩 史 騎
 竹 主 舔 煙 鹽 眼 燕 玉 滑 肥 費 紡 方 房 居 需 蘇 區 粗 入 拋 踏 科 雞 知 罵 麻 衣 話 努 商
 """.split()
 
@@ -222,9 +222,9 @@ def order(level):
 
 
 def segment(text, vocab):
-    """split into words: the split with the fewest unknown words, then the lowest cost, where each word costs 1 + its level
-    (so short basic words win: 一個兒子 is 一 個 兒子, not 一 個兒 子; 日本人 is 日本 人, not 日 本人)"""
-    cost = lambda w: 1 + (order(vocab[w]) if vocab.get(w) in LEVEL_ORDER else 2)
+    """split into words: the split with the fewest unknown words, then the fewest words, then the most basic levels
+    (each word costs 1 + a tenth of its level): 一個兒子 is 一 個 兒子 (個兒 would leave 子 unknown), 日本人 is 日本 人, 大人 stays 大人"""
+    cost = lambda w: 1 + (order(vocab[w]) if vocab.get(w) in LEVEL_ORDER else 2) / 10
     out = []
     for run in re.findall(r"[\u4e00-\u9fff]+", text):
         best = [(0, 0, [])] + [None] * len(run)
@@ -287,7 +287,8 @@ def toneless(s):
 
 # Readings where Taiwan's two references disagree and the app follows TOCFL (what people say), checked by hand.
 TW_OK = {"機場": "TOCFL jīchǎng, MOE jī cháng", "姊姊": "TOCFL jiějie, MOE zǐ zi (formal)", "喂": "TOCFL lists wéi and wèi",
-         "台": "台 is the everyday form of 臺 tái", "它們": "TOCFL tāmen (what everyone says), MOE tuō men"}
+         "台": "台 is the everyday form of 臺 tái", "它們": "TOCFL tāmen (what everyone says), MOE tuō men",
+         "市場": "TOCFL shìchǎng, MOE shì cháng (like 機場)"}
 
 
 def check_taiwan(pairs, readings, vocab):
@@ -386,16 +387,16 @@ def main():
         report.append(f"FAIL level: not in the TOCFL list or EXTRAS (check them and add them to EXTRAS in tests/check.py): {' '.join(unknown)}")
     else:
         report.append(f"PASS level: all {len(used)} words are in the TOCFL list or EXTRAS ({summary})")
-    # coverage: every Novice 1 and Novice 2 word is heard on its own somewhere (not only inside another word)
+    # coverage: every Novice 1, Novice 2 and A1 word is heard on its own somewhere (not only inside another word)
     missing = {}
     for lid, level, forms, py in tocfl_entries():
-        if level in ("Novice 1", "Novice 2") and not any(f in used for f in forms):
+        if level in BASIC and not any(f in used for f in forms):
             missing.setdefault(level, []).append(forms[0])
     if missing:
         report.append("FAIL coverage: TOCFL words never heard on their own: " + " · ".join(f"{l} ({len(w)}): {' '.join(w)}" for l, w in missing.items()))
     else:
-        n = sum(1 for e in tocfl_entries() if e[1] in ("Novice 1", "Novice 2"))
-        report.append(f"PASS coverage: all {n} Novice 1 and Novice 2 words are heard on their own")
+        n = sum(1 for e in tocfl_entries() if e[1] in BASIC)
+        report.append(f"PASS coverage: all {n} Novice 1, Novice 2 and A1 words are heard on their own")
     above = sorted((w for w, l in used.items() if l not in BASIC and l not in ("extra", "unknown")), key=lambda w: (order(used[w]), w))
     if above:
         report.append(f"INFO {len(above)} words above A1" + (": " + " ".join(f"{w}({used[w]})" for w in above) if verbose else " (run with -v to list them)"))

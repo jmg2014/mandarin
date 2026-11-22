@@ -11,12 +11,12 @@ It's built like the maths app (`~/math`) and `~/git/lengua`, and reuses their de
 |---|---|---|
 | 🎵 Tones & sounds | `tones/` | The 4 tones · Tone pairs · Similar sounds (j q x, zh ch sh, ü…) |
 | 🔢 Numbers | `numbers/` | 0–10 & phone numbers · 11–99 · Hundreds & thousands · Prices · Time · Days & dates · How many |
-| 🗂️ Words | `words/` | Drinks · Food · People · Places · Getting around · Actions · How is it? · Opposites · Body & health · Time words · School · At home · Weather & free time |
+| 🗂️ Words | `words/` | Drinks · Food · People · Places · Getting around · Actions · How is it? · Opposites · Body & health · Time words · School · At home · Weather & free time · Clothes & colours · Rooms & housing · Nature & seasons · Tastes & the table · Sports & going out · People & feelings · Town, school & work |
 | 💬 Phrases & questions | `phrases/` | Everyday phrases · Questions (什麼 誰 哪裡 幾 多少…) |
-| 🧩 Sentences | `sentences/` | 是 · 要 · 喜歡 · 有 · 在 · Plans (when + where) · Little words: 也 都 只 還 · 可是 所以 · 覺得 最 比 · 能 應該 得 · 過 了 著 · Where · People |
-| 🎧 Conversations | `dialogues/` | Meeting people · Food & drinks · Shopping · Getting around · Making plans · Health & weather · Class & home |
+| 🧩 Sentences | `sentences/` | 是 · 要 · 喜歡 · 有 · 在 · Plans (when + where) · Little words: 也 都 只 還 · 可是 所以 · 覺得 最 比 · 能 應該 得 · 過 了 著 · Where · People · 已經 剛剛 才 · 如果 雖然 或是 · 把 被 讓 替 · Give, send, borrow · 相信 希望 打算 · Ideas · Measure words · Directions & help |
+| 🎧 Conversations | `dialogues/` | Meeting people · Food & drinks · Shopping · Getting around · Making plans · Health & weather · Class & home · Hotel & a lost wallet · A flat & New Year |
 
-**Level:** every word of TOCFL **Novice 1 and Novice 2** (394 words) is heard on its own somewhere, plus part of A1.
+**Level:** every word of TOCFL **Novice 1, Novice 2 and Beginner A1** (741 words) is heard on its own somewhere.
 The **📖 TOCFL words** panel on the main page shows each Novice 1 / Novice 2 / A1 word as not yet / heard / known
 (known = 3 right answers in questions where you heard it).
 
@@ -80,7 +80,7 @@ python3 tests/check.py        # -v lists the words above A1
 - **Traditional characters**: no Simplified forms (from CC-CEDICT's traditional / simplified columns).
 - **Taiwan readings** (`--taiwan`): every word's tones are compared with Taiwan's Ministry of Education dictionary (萌典, cached in `tests/data/`).
   Where TOCFL and the MOE dictionary disagree (機場, 姊姊, 喂) the app follows TOCFL; those are listed in `TW_OK`.
-- **Coverage**: every TOCFL Novice 1 and Novice 2 word must be heard on its own (not only inside another word) somewhere in the app.
+- **Coverage**: every TOCFL Novice 1, Novice 2 and A1 word must be heard on its own (not only inside another word) somewhere in the app.
 - **Never again**: sentences a native-speaker review found wrong (吃湯, 請給我三個人, April 31…) are checked so they can't come back.
 - **Level**: every sentence is split into words, and each word must be in the **TOCFL** list or in `EXTRAS` in `tests/check.py`
   (everyday Taiwan words like 捷運, 珍珠奶茶, names and places, used on purpose).

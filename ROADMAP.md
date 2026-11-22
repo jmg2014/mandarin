@@ -210,9 +210,16 @@ weather (今天很熱), likes and hobbies, at the hotel, phone call (喂？), at
 - [x] 📖 TOCFL map on the main page: every Novice 1 / Novice 2 / A1 word as not yet / heard / known
 - [x] Independent native-level review of the new content
 
+### v3 – All of A1 ✅ (2026-11-22)
+- [x] Coverage test extended to A1: all 741 Novice 1, Novice 2 and A1 words are heard on their own
+- [x] 7 new word themes: clothes & colours, rooms & housing, nature & seasons, tastes & the table, sports & going out, people & feelings, town / school / work
+- [x] 8 new little-words skills: 已經 剛剛 才 總是 · 如果 雖然 或是 當然 · 把 被 讓 替 地 · give / send / borrow / pay · 相信 希望 打算 決定 · ideas (想法 機會 重要 奇怪…) · measure words & quantities · directions & asking for help
+- [x] 4 new conversations: checking in at a hotel, a lost wallet, renting a flat, Chinese New Year
+- [x] Independent native-level review of the new content
+
 ### Next
 - [ ] Try it on the tablet for a week: is the voice clear on single syllables? Speed right? Too easy / too hard?
-- [ ] Finish A1 (TOCFL Beginner): about 250 words still missing; more conversations (restaurant, hotel, bank, post office)
+- [ ] More conversations per situation (restaurant, bank, post office, work), so each word is heard in more than one context
 - [ ] Zhuyin (ㄅㄆㄇ) as a third transcript option
 - [ ] Shadowing: a 🗣 button after each answer (listen, repeat aloud); later, the mic to compare
 - [ ] Simulation (like lengua's `tests/simulate.html`): how many days to finish A1 at 10 min/day

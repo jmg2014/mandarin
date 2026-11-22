@@ -241,6 +241,63 @@ const SKILLS = [
         qs:[{ lv:1, q:"What does the guest ask first?", c:["Whether to take his shoes off", "Where the toilet is", "Which floor it is", "Whether to sit down"] },
             { lv:2, q:"What does the guest drink?", c:["Tea", "Coffee", "Water", "Juice"] },
             { lv:3, q:"Which floor does the host live on? Type it.", num:"7" }] }
+    ]},
+  { id:"di-trip", name:"Hotel & a lost wallet", emoji:"🏨", desc:"Checking in at a hotel, and losing your wallet.",
+    rule:`<ul><li><b>我要住兩個晚上</b> I'd like to stay two nights · <b>您的房間在八樓</b> your room is on the 8th floor · <b>電梯</b> lift</li>
+      <li><b>早餐</b> breakfast · <b>…到…</b> from … to … · <b>當然可以</b> of course</li>
+      <li><b>我的錢包不見了</b> my wallet is gone · <b>別緊張</b> don't panic · <b>剛剛有人拿來的</b> someone just brought it in</li></ul>`,
+    dialogues:[
+      { title:"Checking in", lines:[
+        ["A", "你好，我要住兩個晚上。", "Nǐ hǎo, wǒ yào zhù liǎng ge wǎnshàng.", "Hi, I'd like to stay for two nights."],
+        ["B", "好的，請問您的姓名？", "Hǎo de, qǐngwèn nín de xìngmíng?", "Certainly. May I have your full name?"],
+        ["A", "我叫安娜。", "Wǒ jiào Ānnà.", "My name is Anna."],
+        ["B", "您的房間在八樓，電梯在左邊。", "Nín de fángjiān zài bā lóu, diàntī zài zuǒbiān.", "Your room is on the eighth floor. The lift is on the left."],
+        ["A", "早餐幾點開始？", "Zǎocān jǐ diǎn kāishǐ?", "What time does breakfast start?"],
+        ["B", "早上七點到十點。", "Zǎoshàng qī diǎn dào shí diǎn.", "From seven to ten in the morning."],
+        ["A", "可以給我一張地圖嗎？", "Kěyǐ gěi wǒ yì zhāng dìtú ma?", "Could I have a map?"],
+        ["B", "當然可以。", "Dāngrán kěyǐ.", "Of course."]],
+        qs:[{ lv:1, q:"How many nights is she staying?", c:["2", "3", "1", "4"] },
+            { lv:2, q:"Where is her room?", c:["8th floor, lift on the left", "8th floor, lift on the right", "4th floor, lift on the left", "18th floor, lift on the left"] },
+            { lv:3, q:"When is breakfast?", c:["7 to 10 am", "7 to 11 am", "10 am to 12", "6 to 9 am"] },
+            { lv:3, q:"What does she ask for at the end?", c:["A map", "A taxi", "Her key", "A coffee"] }] },
+      { title:"A lost wallet", lines:[
+        ["A", "不好意思，我的錢包不見了。我剛剛在這裡買東西。", "Bù hǎoyìsi, wǒ de qiánbāo bú jiàn le. Wǒ gānggāng zài zhèlǐ mǎi dōngxi.", "Excuse me, my wallet is missing. I was just shopping here."],
+        ["B", "別緊張。你的錢包是什麼顏色？", "Bié jǐnzhāng. Nǐ de qiánbāo shì shénme yánsè?", "Don't worry. What colour is your wallet?"],
+        ["A", "黃色的，裡面有我的信用卡。", "Huángsè de, lǐmiàn yǒu wǒ de xìnyòngkǎ.", "Yellow, with my credit card in it."],
+        ["B", "是這個嗎？剛剛有人拿來的。", "Shì zhège ma? Gānggāng yǒu rén ná lái de.", "Is it this one? Someone just brought it in."],
+        ["A", "對！太好了，謝謝你！", "Duì! Tài hǎo le, xièxie nǐ!", "Yes! Wonderful, thank you!"]],
+        qs:[{ lv:1, q:"What has she lost?", c:["Her wallet", "Her phone", "Her bag", "Her glasses"] },
+            { lv:2, q:"What colour is it?", c:["Yellow", "White", "Black", "Red"] },
+            { lv:2, q:"What's inside it?", c:["Her credit card", "Her phone", "Only money", "Her keys"] },
+            { lv:3, q:"What happened to it?", c:["Someone handed it in", "She left it at home", "It's still missing", "It was in her bag"] }] }
+    ]},
+  { id:"di-home2", name:"A flat & New Year", emoji:"🧧", desc:"Renting a flat, and an invitation for Chinese New Year.",
+    rule:`<ul><li><b>房租多少？</b> how much is the rent? · <b>兩個房間、一個客廳和一個廚房</b> two bedrooms, a living room and a kitchen</li>
+      <li><b>有冷氣嗎？</b> is there air conditioning? · <b>也有家具</b> it's furnished too · <b>離捷運站遠不遠？</b> is it far from the MRT?</li>
+      <li>🧧 <b>過年</b> Chinese New Year: people go home to their family. <b>你來我家過年吧</b> come and spend New Year with us.</li></ul>`,
+    dialogues:[
+      { title:"Renting a flat", lines:[
+        ["A", "這個房子一個月房租多少？", "Zhège fángzi yí ge yuè fángzū duōshǎo?", "How much is the rent for this flat a month?"],
+        ["B", "一萬八千塊。有兩個房間、一個客廳和一個廚房。", "Yíwàn bāqiān kuài. Yǒu liǎng ge fángjiān, yí ge kètīng hé yí ge chúfáng.", "18,000 dollars. There are two bedrooms, a living room and a kitchen."],
+        ["A", "有冷氣嗎？", "Yǒu lěngqì ma?", "Is there air conditioning?"],
+        ["B", "有，每個房間都有冷氣，也有家具。", "Yǒu, měi ge fángjiān dōu yǒu lěngqì, yě yǒu jiājù.", "Yes, every room has air conditioning, and it's furnished."],
+        ["A", "離捷運站遠不遠？", "Lí jiéyùn zhàn yuǎn bù yuǎn?", "Is it far from the MRT station?"],
+        ["B", "很近，走路五分鐘就到了。", "Hěn jìn, zǒulù wǔ fēnzhōng jiù dào le.", "It's very close, just five minutes on foot."]],
+        qs:[{ lv:1, q:"What is she doing?", c:["Looking at a flat to rent", "Buying furniture", "Booking a hotel", "Asking the way"] },
+            { lv:2, q:"What rooms does it have?", c:["2 bedrooms, a living room, a kitchen", "1 bedroom, a living room, a kitchen", "3 bedrooms and a kitchen", "2 bedrooms, no kitchen"] },
+            { lv:2, q:"Is there air conditioning?", c:["Yes, in every room", "Only in the living room", "No", "Only in one bedroom"] },
+            { lv:3, q:"How much is the rent a month? Type it.", num:"18000" }] },
+      { title:"Chinese New Year", lines:[
+        ["A", "過年你要回家嗎？", "Guònián nǐ yào huí jiā ma?", "Are you going home for New Year?"],
+        ["B", "要，我打算坐高鐵回高雄。你呢？", "Yào, wǒ dǎsuàn zuò gāotiě huí Gāoxióng. Nǐ ne?", "Yes, I'm planning to take the high-speed rail back to Kaohsiung. And you?"],
+        ["A", "我不回去，我的家人在西班牙。", "Wǒ bù huíqù, wǒ de jiārén zài Xībānyá.", "I'm not going back. My family is in Spain."],
+        ["B", "那你來我家過年吧！我媽媽做的菜很好吃。", "Nà nǐ lái wǒ jiā guònián ba! Wǒ māma zuò de cài hěn hǎochī.", "Then come and spend New Year at my home! My mum's cooking is great."],
+        ["A", "真的嗎？太好了！我要準備什麼禮物？", "Zhēnde ma? Tài hǎo le! Wǒ yào zhǔnbèi shénme lǐwù?", "Really? Wonderful! What present should I bring?"],
+        ["B", "不用客氣，帶水果就可以了。", "Búyòng kèqì, dài shuǐguǒ jiù kěyǐ le.", "No need, just bring some fruit."]],
+        qs:[{ lv:1, q:"What are they talking about?", c:["Chinese New Year", "A birthday", "A holiday in Spain", "A wedding"] },
+            { lv:2, q:"How is he getting home?", c:["By high-speed rail to Kaohsiung", "By plane to Kaohsiung", "By coach to Taichung", "By train to Tainan"] },
+            { lv:2, q:"Why isn't she going home?", c:["Her family is in Spain", "She has to work", "She's ill", "It's too expensive"] },
+            { lv:3, q:"What should she bring?", c:["Some fruit", "A cake", "Some wine", "Flowers"] }] }
     ]}
 ];
 

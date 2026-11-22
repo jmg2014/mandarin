@@ -130,7 +130,8 @@ const bad = [[/吃湯/, "soup is 喝, not 吃"], [/給我.{1,3}(個人|隻貓)|�
   [/((^|[^十])(四|六|九)|十一)月三十一[號日]|(^|[^十])二月(二十九|三十)/, "a date that doesn't exist"], [/爺爺今年(十|二十|三十|四十|五十)/, "a grandpa that young"],
   [/早上(九|十|十一)點/, "早上 after 9 (Taiwan says 上午)"], [/坐公車去(台北|台中|高雄|台南|花蓮)|騎機車去(台北|台中|高雄|台南|花蓮)/, "a city bus or scooter between cities"],
   [/下個月.{0,4}去(夜市|公園|超市)/, "planning the supermarket a month ahead"], [/車站在樓|洗手間在對面/, "an odd place"],
-  [/(狗|貓)，?它/, "它 for an animal (Taiwan writes 牠)"], [/做飯/, "做飯 (Taiwan says 煮飯)"]];
+  [/(狗|貓)，?它/, "它 for an animal (Taiwan writes 牠)"], [/做飯/, "做飯 (Taiwan says 煮飯)"],
+  [/讓位/, "讓位 (Taiwan says 讓座)"], [/給我講/, "給我講 (Taiwan says 講…給我聽)"], [/這個咖啡|這個房子/, "這個 instead of the right measure word"]];
 for (const [re, why] of bad){ const hit = allZh.find(z => re.test(z)); if (hit) fail(`${why}: ${hit}`); else out.push("PASS never: " + why); }
 out.push(`PASS generated ${count} questions`);
 out.push(fails ? `FAIL ${fails} problems` : "PASS all questions are well formed");

@@ -300,7 +300,7 @@ function renderTocfl(){
   const known = st.filter(x => x === "known").length, heard = st.filter(x => x === "heard").length;
   $("#tocflSummary").textContent = `✓ ${known} known · ◐ ${heard} heard · of ${ZH.TOCFL.length} words (Novice 1 to A1)`;
   $("#tocflBody").innerHTML = `<p class="muted">The words of Taiwan's official test (TOCFL). A word turns <b>yellow</b> when you've heard it in an exercise
-      and <b>green</b> after 3 right answers with it. Novice 1 and 2 are fully covered by the exercises; A1 partly.</p>
+      and <b>green</b> after 3 right answers with it. Every word of Novice 1, Novice 2 and A1 is in the exercises.</p>
     <div class="legend"><span><i style="background:#a6e5c1"></i>known</span><span><i style="background:#fbe1a0"></i>heard</span><span><i style="background:var(--grey)"></i>not yet</span></div>` +
     LEVELS.map(([lv, name, zh]) => {
       const n = count(lv), k = count(lv, "known"), h = count(lv, "heard");

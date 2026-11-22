@@ -5,7 +5,7 @@
 // The maths app and lengua can live on the same address and share the browser's offline storage, so this file only ever
 // deletes its own old copies (names starting with "mandarin-tw-").
 const PREFIX = "mandarin-tw-";
-const CACHE = PREFIX + "v3";
+const CACHE = PREFIX + "v4";
 const FILES = [
   "./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png",
   "./shared/style.css", "./shared/progress.js", "./shared/engine.js", "./shared/zh.js", "./shared/tocfl.js", "./shared/words.js", "./shared/topic.js",

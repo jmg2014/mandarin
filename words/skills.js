@@ -49,6 +49,13 @@ ZH.TOPICS.push({ id:"words", title:"Words", emoji:"🗂️", skills:[
   skillFor("time", "wo-time", "Last year, the day before yesterday, early, late, often, first… then…"),
   skillFor("school", "wo-school", "Pen, homework, class, write, read, teach, ask…"),
   skillFor("home", "wo-home", "Door, table, bed, floor, shoes, chopsticks…"),
-  skillFor("weather", "wo-weather", "Weather, wind, air, singing, ball games…")
+  skillFor("weather", "wo-weather", "Weather, wind, air, singing, ball games…"),
+  skillFor("clothes", "wo-clothes", "Socks, skirt, coat, glasses, wallet, colours…"),
+  skillFor("house", "wo-house", "Kitchen, lift, window, fridge, air conditioning, rent…"),
+  skillFor("nature", "wo-nature", "Seasons, snow, sun, sea, trees, birds…"),
+  skillFor("taste", "wo-taste", "Sour, bitter, salty, fork, spoon, barbecue…"),
+  skillFor("outing", "wo-outing", "Basketball, baseball, cinema, photos, the internet, travel…"),
+  skillFor("feelings", "wo-feelings", "Adults, guests, laugh, cry, nervous, angry, clever…"),
+  skillFor("town", "wo-town", "City, street, crossroads, market, office, school years, grades…")
 ]});
 })();
