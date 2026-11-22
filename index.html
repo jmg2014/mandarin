@@ -49,6 +49,18 @@ details[open].panel > summary::after{content:"▴"}
 .toggle button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .voice{background:var(--key);border-radius:12px;padding:10px 12px;margin-top:6px}
 .voice.warn{background:var(--gold);color:var(--gold-ink)}
+.lvl{margin:14px 0 6px}
+.lvl h3{margin:0 0 6px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lvl h3 small{color:var(--muted);font-weight:600}
+.bar{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--grey);max-width:560px}
+.bar span{display:block;height:100%}
+.bar .known,.wchip.known{background:#a6e5c1;color:#0d5a33}
+.bar .heard,.wchip.heard{background:#fbe1a0;color:#6a4a00}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;color:var(--muted);margin:8px 0}
+.legend i{display:inline-block;width:.9em;height:.9em;border-radius:3px;vertical-align:-.1em;margin-right:4px}
+.wchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.wchip{border-radius:8px;padding:3px 7px;background:var(--key);color:var(--muted);font-size:1.05rem;line-height:1.2;text-align:center}
+.wchip small{display:block;font-size:.7rem}
 </style>
 </head>
 <body>
@@ -65,6 +77,11 @@ details[open].panel > summary::after{content:"▴"}
   <details class="panel" id="progressPanel">
     <summary><h2>📈 My progress</h2></summary>
     <div id="progressBody"></div>
+  </details>
+
+  <details class="panel" id="tocflPanel">
+    <summary><div><h2>📖 TOCFL words</h2><div id="tocflSummary" class="muted" style="margin-top:4px"></div></div></summary>
+    <div id="tocflBody"></div>
   </details>
 
   <details class="panel" id="settingsPanel">
@@ -88,6 +105,7 @@ details[open].panel > summary::after{content:"▴"}
 <script src="shared/progress.js"></script>
 <script src="shared/engine.js"></script>
 <script src="shared/zh.js"></script>
+<script src="shared/tocfl.js"></script>
 <script src="shared/words.js"></script>
 <!-- every topic's skills.js: for progress and the daily session -->
 <script src="tones/skills.js"></script>
@@ -95,6 +113,7 @@ details[open].panel > summary::after{content:"▴"}
 <script src="words/skills.js"></script>
 <script src="phrases/skills.js"></script>
 <script src="sentences/skills.js"></script>
+<script src="sentences/little.js"></script>
 <script src="dialogues/skills.js"></script>
 <script>
 (function(){
@@ -105,10 +124,10 @@ const { $, prog:P, shuffle } = ZH;
 const TOPICS = [
   { id:"tones",     path:"tones/",     step:"Start here", desc:"The 4 tones, tone pairs, sounds like zh / j / z and ü" },
   { id:"numbers",   path:"numbers/",   step:"Start here", desc:"0–9999, prices, times, days and dates, how many" },
-  { id:"words",     path:"words/",     step:"Then",       desc:"Drinks, food, people, places, transport, actions" },
+  { id:"words",     path:"words/",     step:"Then",       desc:"Food, people, places, transport, body, school, home, time, weather, opposites" },
   { id:"phrases",   path:"phrases/",   step:"Then",       desc:"Thank you, sorry, I don't understand… and questions" },
-  { id:"sentences", path:"sentences/", step:"Next",       desc:"是, 要, 喜歡, 有, 在 and making plans" },
-  { id:"dialogues", path:"dialogues/", step:"Next",       desc:"Short conversations: meeting people, food, shopping, travel" }
+  { id:"sentences", path:"sentences/", step:"Next",       desc:"是 要 喜歡 有 在, plans, and the little words: 也 都 只, 可是 所以, 比, 過 了…" },
+  { id:"dialogues", path:"dialogues/", step:"Next",       desc:"Meeting people, food, shopping, travel, plans, the doctor, class, a friend's home" }
 ];
 const topicOf = id => ZH.TOPICS.find(T => T.id === id);
 const allSkills = () => ZH.TOPICS.flatMap(T => T.skills.map(s => ({ s, T })));
@@ -273,6 +292,26 @@ function renderProgress(){
   });
 }
 
+/* ---------- TOCFL map: every Novice 1, Novice 2 and A1 word, and whether you've heard it ---------- */
+const LEVELS = [[1, "Novice 1", "準備級一級"], [2, "Novice 2", "準備級二級"], [3, "Beginner A1", "入門級"]];
+function renderTocfl(){
+  const st = ZH.TOCFL.map((w, i) => P.wordStatus(i));
+  const count = (lv, s) => ZH.TOCFL.filter((w, i) => w[2] === lv && (!s || st[i] === s)).length;
+  const known = st.filter(x => x === "known").length, heard = st.filter(x => x === "heard").length;
+  $("#tocflSummary").textContent = `✓ ${known} known · ◐ ${heard} heard · of ${ZH.TOCFL.length} words (Novice 1 to A1)`;
+  $("#tocflBody").innerHTML = `<p class="muted">The words of Taiwan's official test (TOCFL). A word turns <b>yellow</b> when you've heard it in an exercise
+      and <b>green</b> after 3 right answers with it. Novice 1 and 2 are fully covered by the exercises; A1 partly.</p>
+    <div class="legend"><span><i style="background:#a6e5c1"></i>known</span><span><i style="background:#fbe1a0"></i>heard</span><span><i style="background:var(--grey)"></i>not yet</span></div>` +
+    LEVELS.map(([lv, name, zh]) => {
+      const n = count(lv), k = count(lv, "known"), h = count(lv, "heard");
+      return `<div class="lvl"><h3>${name} <span class="muted" style="font-weight:400">${zh}</span><small>${k} known · ${h} heard · ${n} words</small></h3>
+        <div class="bar" role="img" aria-label="${k} known, ${h} heard, ${n - k - h} not yet"><span class="known" style="width:${k / n * 100}%"></span><span class="heard" style="width:${h / n * 100}%"></span></div>
+        <details><summary class="muted" style="cursor:pointer;margin-top:6px">Show the words</summary>
+          <div class="wchips">${ZH.TOCFL.map((w, i) => w[2] !== lv ? "" : `<span class="wchip ${st[i]}">${ZH.esc(w[0].split("/")[0])}<small>${ZH.esc(w[1].split("/")[0])}</small></span>`).join("")}</div>
+        </details></div>`;
+    }).join("");
+}
+
 /* ---------- settings and voice ---------- */
 function renderSettings(){
   const st = P.settings, v = ZH.voiceInfo();
@@ -300,7 +339,7 @@ $("#settingsBody").addEventListener("click", e => {
 try { speechSynthesis.addEventListener("voiceschanged", () => setTimeout(renderSettings, 50)); } catch(e){}
 
 function renderAll(){
-  renderDaily(); renderTopics(); renderProgress(); renderSettings();
+  renderDaily(); renderTopics(); renderProgress(); renderTocfl(); renderSettings();
   $("#soundBtn").textContent = P.sound ? "🔔" : "🔕";
 }
 
@@ -338,6 +377,7 @@ $("#restoreFile").addEventListener("change", async e => {
 ZH.registerOffline("sw.js");
 renderAll();
 if (location.hash === "#progress") $("#progressPanel").open = true;
+if (location.hash === "#tocfl") $("#tocflPanel").open = true;
 if (location.hash === "#settings") $("#settingsPanel").open = true;
 })();
 </script>

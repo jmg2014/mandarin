@@ -333,6 +333,8 @@ function submit(){
   const ms = performance.now() - S.start;
   const given = readGiven(q), ok = judge(q, given);
   if (S.onAnswer) S.onAnswer(q, ok, ms, given);
+  // the TOCFL words in what was heard, for the TOCFL map
+  try { if (ZH.TOCFL) ZH.prog.hear(ZH.tocflWords(linesOf(q).map(L => L.t).join("，") + (q.items ? "，" + q.items.map(hz).join("") : "")), ok); } catch(e){}
   if (ok) S.right++;
   S.results.push({ q, given, givenText:givenText(q, given), ok, ms });
 

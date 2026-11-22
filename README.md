@@ -11,10 +11,14 @@ It's built like the maths app (`~/math`) and `~/git/lengua`, and reuses their de
 |---|---|---|
 | 🎵 Tones & sounds | `tones/` | The 4 tones · Tone pairs · Similar sounds (j q x, zh ch sh, ü…) |
 | 🔢 Numbers | `numbers/` | 0–10 & phone numbers · 11–99 · Hundreds & thousands · Prices · Time · Days & dates · How many |
-| 🗂️ Words | `words/` | Drinks · Food · People · Places · Getting around · Actions · How is it? |
+| 🗂️ Words | `words/` | Drinks · Food · People · Places · Getting around · Actions · How is it? · Opposites · Body & health · Time words · School · At home · Weather & free time |
 | 💬 Phrases & questions | `phrases/` | Everyday phrases · Questions (什麼 誰 哪裡 幾 多少…) |
-| 🧩 Sentences | `sentences/` | 是 · 要 · 喜歡 · 有 · 在 · Plans (when + where) |
-| 🎧 Conversations | `dialogues/` | Meeting people · Food & drinks · Shopping · Getting around · Making plans |
+| 🧩 Sentences | `sentences/` | 是 · 要 · 喜歡 · 有 · 在 · Plans (when + where) · Little words: 也 都 只 還 · 可是 所以 · 覺得 最 比 · 能 應該 得 · 過 了 著 · Where · People |
+| 🎧 Conversations | `dialogues/` | Meeting people · Food & drinks · Shopping · Getting around · Making plans · Health & weather · Class & home |
+
+**Level:** every word of TOCFL **Novice 1 and Novice 2** (394 words) is heard on its own somewhere, plus part of A1.
+The **📖 TOCFL words** panel on the main page shows each Novice 1 / Novice 2 / A1 word as not yet / heard / known
+(known = 3 right answers in questions where you heard it).
 
 Every skill has 3 levels: get 8 out of 10 to unlock the next, pass level 3 for a ⭐.
 The **每日聽力 Daily listening** session on the main page mixes ~12 questions: a tone warm-up, numbers, the skills that need it most,
@@ -52,8 +56,9 @@ shared/engine.js      question engine: speaking (Taiwan voice, two speakers), �
 shared/progress.js    saving, levels, stars, daily streak, settings, backup
 shared/topic.js       a topic page: skill tabs, tip card, 3 levels, stars
 shared/zh.js          numbers / prices / times / dates in characters + pinyin (Taiwan usage: 兩百, 兩點), tones, the 一 tone change
+shared/tocfl.js       the TOCFL Novice 1 / Novice 2 / A1 list for the TOCFL map (made by tools/make_tocfl.py)
 shared/words.js       the word bank by theme (TOCFL Novice 1 – A1 + everyday Taiwan words), with the sentences each word is heard in
-tones/ … dialogues/   one folder per topic: index.html + skills.js
+tones/ … dialogues/   one folder per topic: index.html + skills.js (sentences/little.js: the hand-written little-words sentences)
 tests/                automated checks, and voices.html to see the voices on a device
 ```
 
@@ -75,6 +80,7 @@ python3 tests/check.py        # -v lists the words above A1
 - **Traditional characters**: no Simplified forms (from CC-CEDICT's traditional / simplified columns).
 - **Taiwan readings** (`--taiwan`): every word's tones are compared with Taiwan's Ministry of Education dictionary (萌典, cached in `tests/data/`).
   Where TOCFL and the MOE dictionary disagree (機場, 姊姊, 喂) the app follows TOCFL; those are listed in `TW_OK`.
+- **Coverage**: every TOCFL Novice 1 and Novice 2 word must be heard on its own (not only inside another word) somewhere in the app.
 - **Never again**: sentences a native-speaker review found wrong (吃湯, 請給我三個人, April 31…) are checked so they can't come back.
 - **Level**: every sentence is split into words, and each word must be in the **TOCFL** list or in `EXTRAS` in `tests/check.py`
   (everyday Taiwan words like 捷運, 珍珠奶茶, names and places, used on purpose).

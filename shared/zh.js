@@ -127,4 +127,28 @@ ZH.date = function(month, day){
   return { zh:m.zh + "月" + d.zh + "號", py:m.py + " yuè " + d.py + " hào", en:MONTHS[month - 1] + " " + day };
 };
 ZH.MONTHS = MONTHS;
+
+/* ---------- TOCFL words in a text (for the TOCFL map) ----------
+   Splits the characters into words from ZH.TOCFL (shared/tocfl.js): the split with the fewest unknown characters,
+   then the fewest words, preferring basic levels. Returns the indexes of the TOCFL words found. */
+let TOC = null;
+ZH.tocflWords = function(text){
+  if (!ZH.TOCFL) return [];
+  if (!TOC){ TOC = new Map(); ZH.TOCFL.forEach(([forms, , lv], i) => forms.split("/").forEach(f => { if (f && !TOC.has(f)) TOC.set(f, [i, lv]); })); }
+  const found = new Set();
+  for (const run of String(text).match(/[\u4e00-\u9fff]+/g) || []){
+    const best = [{ cost:0, ids:[] }];
+    for (let i = 0; i < run.length; i++){
+      if (!best[i]) continue;
+      for (let k = 1; k <= Math.min(6, run.length - i); k++){
+        const w = run.slice(i, i + k), hit = TOC.get(w);
+        if (k > 1 && !hit) continue;
+        const c = best[i].cost + (hit ? 1 + hit[1] * .1 : 10), ids = hit ? best[i].ids.concat(hit[0]) : best[i].ids;
+        if (!best[i + k] || c < best[i + k].cost) best[i + k] = { cost:c, ids };
+      }
+    }
+    best[run.length].ids.forEach(i => found.add(i));
+  }
+  return [...found];
+};
 })();

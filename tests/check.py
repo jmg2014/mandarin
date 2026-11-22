@@ -35,9 +35,9 @@ BASIC = {"Novice 1", "Novice 2", "A1"}
 
 # Words used on purpose that are above A1 or not in the TOCFL list: everyday Taiwan words, names, places, nationalities.
 EXTRAS = """
-珍珠奶茶 奶茶 捷運 捷運站 便利商店 機車 夜市 高鐵 光臨 歡迎光臨 掰掰 加油 半糖 少冰 甜度 冰塊 載具 牛肉麵 刷卡 便當 中杯 大杯
+珍珠奶茶 奶茶 捷運 捷運站 便利商店 機車 夜市 高鐵 光臨 歡迎光臨 掰掰 加油 半糖 少冰 甜度 冰塊 載具 牛肉麵 刷卡 便當
 台北 台中 台南 高雄 花蓮 台北車站 西班牙 英國 法國 德國 韓國 美國 日本 台灣
-小美 小明 大衛 安娜 王 白飯 客運 試穿 驗 上午 早安 晚安 青菜 試試看 三明治 夏天 冬天 姊姊 醫生 下個月 多久 左右 收 找 您 盤 鉛筆 拔 靶 姨 椅 億 屋 無 霧 躺 燙 詩 史 騎
+小美 小明 大衛 安娜 王 牠 牠們 煮飯 白飯 客運 試穿 驗 上午 早安 晚安 青菜 試試看 三明治 夏天 冬天 姊姊 醫生 下個月 多久 左右 收 找 您 盤 鉛筆 拔 靶 姨 椅 億 屋 無 霧 躺 燙 詩 史 騎
 竹 主 舔 煙 鹽 眼 燕 玉 滑 肥 費 紡 方 房 居 需 蘇 區 粗 入 拋 踏 科 雞 知 罵 麻 衣 話 努 商
 """.split()
 
@@ -180,6 +180,23 @@ def check_pinyin(zh, py, readings):
 
 
 # ---------- TOCFL level ----------
+def tocfl_entries():
+    """[(id, level, [forms], pinyin)] from the TOCFL list; forms expand variants (你/妳) and optional parts (小孩(子))"""
+    import csv
+    out = []
+    with open(fetch(TOCFL_URL, DATA / "tocfl.csv"), encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            lid = row["ID"]
+            level = LEVEL_NAMES.get(lid[:4], LEVEL_NAMES.get(lid[:2], "?"))
+            forms = []
+            for form in row["Traditional"].split("/"):
+                form = form.strip()
+                m = re.fullmatch(r"(.*)\((.*)\)(.*)", form)
+                forms += [m.group(1) + m.group(3), m.group(1) + m.group(2) + m.group(3)] if m else [form]
+            out.append((lid, level, [w for w in forms if w], row["Pinyin"]))
+    return out
+
+
 def load_tocfl():
     words = {}
     import csv
@@ -270,7 +287,7 @@ def toneless(s):
 
 # Readings where Taiwan's two references disagree and the app follows TOCFL (what people say), checked by hand.
 TW_OK = {"機場": "TOCFL jīchǎng, MOE jī cháng", "姊姊": "TOCFL jiějie, MOE zǐ zi (formal)", "喂": "TOCFL lists wéi and wèi",
-         "台": "台 is the everyday form of 臺 tái"}
+         "台": "台 is the everyday form of 臺 tái", "它們": "TOCFL tāmen (what everyone says), MOE tuō men"}
 
 
 def check_taiwan(pairs, readings, vocab):
@@ -369,6 +386,16 @@ def main():
         report.append(f"FAIL level: not in the TOCFL list or EXTRAS (check them and add them to EXTRAS in tests/check.py): {' '.join(unknown)}")
     else:
         report.append(f"PASS level: all {len(used)} words are in the TOCFL list or EXTRAS ({summary})")
+    # coverage: every Novice 1 and Novice 2 word is heard on its own somewhere (not only inside another word)
+    missing = {}
+    for lid, level, forms, py in tocfl_entries():
+        if level in ("Novice 1", "Novice 2") and not any(f in used for f in forms):
+            missing.setdefault(level, []).append(forms[0])
+    if missing:
+        report.append("FAIL coverage: TOCFL words never heard on their own: " + " · ".join(f"{l} ({len(w)}): {' '.join(w)}" for l, w in missing.items()))
+    else:
+        n = sum(1 for e in tocfl_entries() if e[1] in ("Novice 1", "Novice 2"))
+        report.append(f"PASS coverage: all {n} Novice 1 and Novice 2 words are heard on their own")
     above = sorted((w for w, l in used.items() if l not in BASIC and l not in ("extra", "unknown")), key=lambda w: (order(used[w]), w))
     if above:
         report.append(f"INFO {len(above)} words above A1" + (": " + " ".join(f"{w}({used[w]})" for w in above) if verbose else " (run with -v to list them)"))

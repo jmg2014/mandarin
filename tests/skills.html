@@ -7,6 +7,7 @@
 <script src="../shared/progress.js"></script>
 <script src="../shared/engine.js"></script>
 <script src="../shared/zh.js"></script>
+<script src="../shared/tocfl.js"></script>
 <script src="../shared/words.js"></script>
 <script src="../shared/topic.js"></script>
 <script src="../tones/skills.js"></script>
@@ -14,6 +15,7 @@
 <script src="../words/skills.js"></script>
 <script src="../phrases/skills.js"></script>
 <script src="../sentences/skills.js"></script>
+<script src="../sentences/little.js"></script>
 <script src="../dialogues/skills.js"></script>
 <script>
 /* Generates many questions for every skill and level and checks each one:
@@ -100,6 +102,11 @@ Object.keys(ZH.WORDS).forEach(th => ZH.wordList(th).forEach(w => { addPair(w.zh,
 ZH.TOPICS.forEach(T => T.skills.forEach(s => {
   (s.phrases || []).forEach(p => { addPair(p.zh, p.py); if (p.reply) addPair(p.reply.zh, p.reply.py); });
   (s.questions || []).forEach(p => { addPair(p.zh, p.py); addPair(p.ans.zh, p.ans.py); });
+  (s.bank || []).forEach(b => {
+    addPair(b.zh, b.py);
+    if (!b.ok) fail(`${s.id} "${b.zh}": the characters and the pinyin are split into a different number of words`);
+    if (b.wrong.length !== 3 || new Set([b.en, ...b.wrong]).size !== 4) fail(`${s.id} "${b.zh}": needs 3 different wrong meanings`);
+  });
   (s.dialogues || []).forEach(d => {
     d.lines.forEach(L => addPair(L[1], L[2]));
     [1, 2, 3].forEach(lv => { if (!d.qs.some(q => q.lv === lv) && !s.dialogues.some(x => x.qs.some(q => q.lv === lv))) fail(`${s.id}: no level ${lv} question`); });
@@ -120,9 +127,10 @@ const P = ZH._patterns;
 // things a native speaker found wrong once: they must never come back
 const allZh = [...pairs.values()].map(x => x[0]);
 const bad = [[/吃湯/, "soup is 喝, not 吃"], [/給我.{1,3}(個人|隻貓)|我要.{1,3}(個人|隻貓)/, "asking for people or cats"],
-  [/(四|六|九|十一)月三十一號|二月(二十九|三十)/, "a date that doesn't exist"], [/爺爺今年(十|二十|三十|四十|五十)/, "a grandpa that young"],
+  [/((^|[^十])(四|六|九)|十一)月三十一[號日]|(^|[^十])二月(二十九|三十)/, "a date that doesn't exist"], [/爺爺今年(十|二十|三十|四十|五十)/, "a grandpa that young"],
   [/早上(九|十|十一)點/, "早上 after 9 (Taiwan says 上午)"], [/坐公車去(台北|台中|高雄|台南|花蓮)|騎機車去(台北|台中|高雄|台南|花蓮)/, "a city bus or scooter between cities"],
-  [/下個月.{0,4}去(夜市|公園|超市)/, "planning the supermarket a month ahead"], [/車站在樓|洗手間在對面/, "an odd place"]];
+  [/下個月.{0,4}去(夜市|公園|超市)/, "planning the supermarket a month ahead"], [/車站在樓|洗手間在對面/, "an odd place"],
+  [/(狗|貓)，?它/, "它 for an animal (Taiwan writes 牠)"], [/做飯/, "做飯 (Taiwan says 煮飯)"]];
 for (const [re, why] of bad){ const hit = allZh.find(z => re.test(z)); if (hit) fail(`${why}: ${hit}`); else out.push("PASS never: " + why); }
 out.push(`PASS generated ${count} questions`);
 out.push(fails ? `FAIL ${fails} problems` : "PASS all questions are well formed");

@@ -198,7 +198,7 @@ function makeFrom(patterns, level, opts){
     const s2 = sentence(P, v2);
     if (s2 && s2.en !== s.en && s2.zh !== s.zh) wrong.add(s2.en);
   }
-  return { say:s.zh, rate:level === 1 ? .7 : .95, text:"What does it mean?", choices:shuffle([s.en, ...[...wrong].slice(0, 3)]), answer:s.en, long:true,
+  return { say:s.zh, rate:level === 1 ? .7 : .95, text:"What does it mean?", choices:shuffle([s.en, ...[...wrong].slice(0, 3)]), answer:s.en, long:true, explain:`It means <b>${ZH.esc(s.en)}</b>`,
     reveal, solution:`${s.zh} ${s.py}`, key:"m" + level + s.zh, wait:level === 3 };
 }
 ZH._patterns = { SHI, YAO, LIKE, YOU, ZAI_WHO, ZAI_WHERE, QU, sentence, randomV };

@@ -188,6 +188,59 @@ const SKILLS = [
         qs:[{ lv:1, q:"What's the weather like?", c:["It's raining", "It's very hot", "It's cold", "It's sunny"] },
             { lv:2, q:"What will they do instead of the park?", c:["See a film", "Go swimming", "Stay at home", "Go to a café"] },
             { lv:3, q:"What time is the film?", c:["7 pm", "7 am", "1 pm", "10 pm"] }] }
+    ]},
+  { id:"di-health", name:"Health & weather", emoji:"🤒", desc:"At the doctor's, and talking about the weather.",
+    rule:`<ul><li><b>你哪裡不舒服？</b> What's wrong? (where don't you feel well?) · <b>…很痛</b> … hurts</li>
+      <li><b>感冒了</b> have a cold · <b>一天吃三次</b> take it three times a day · <b>多喝水，多休息</b> drink a lot, rest a lot</li>
+      <li><b>天氣怎麼樣？</b> what's the weather like? · <b>風很大</b> very windy · <b>可能會下雨</b> it might rain</li></ul>`,
+    dialogues:[
+      { title:"At the doctor's", lines:[
+        ["B", "你哪裡不舒服？", "Nǐ nǎlǐ bù shūfu?", "What seems to be the problem?"],
+        ["A", "我頭很痛，眼睛也不舒服。", "Wǒ tóu hěn tòng, yǎnjīng yě bù shūfu.", "My head hurts, and my eyes don't feel good either."],
+        ["B", "從什麼時候開始的？", "Cóng shénme shíhòu kāishǐ de?", "When did it start?"],
+        ["A", "前天晚上。", "Qiántiān wǎnshàng.", "The night before last."],
+        ["B", "你感冒了。這個藥一天吃三次，多喝水，多休息。", "Nǐ gǎnmào le. Zhège yào yì tiān chī sān cì, duō hē shuǐ, duō xiūxí.", "You've got a cold. Take this medicine three times a day, drink a lot of water and rest."],
+        ["A", "好，謝謝醫生。", "Hǎo, xièxie yīshēng.", "OK, thank you, doctor."]],
+        qs:[{ lv:1, q:"Where are they?", c:["At the doctor's", "At school", "At a restaurant", "At the station"] },
+            { lv:2, q:"What hurts?", c:["Head", "Tummy", "Foot", "Ears"] },
+            { lv:2, q:"When did it start?", c:["The night before last", "Last night", "This morning", "Last week"] },
+            { lv:3, q:"How many times a day should she take the medicine? Type it.", num:"3" }] },
+      { title:"The weather", lines:[
+        ["A", "今天天氣怎麼樣？", "Jīntiān tiānqì zěnmeyàng?", "What's the weather like today?"],
+        ["B", "外面風很大，也有點冷。", "Wàimiàn fēng hěn dà, yě yǒudiǎn lěng.", "It's very windy outside, and a bit cold."],
+        ["A", "明天呢？", "Míngtiān ne?", "And tomorrow?"],
+        ["B", "明天可能會下雨，也會很冷。你要多穿一點衣服。", "Míngtiān kěnéng huì xiàyǔ, yě huì hěn lěng. Nǐ yào duō chuān yìdiǎn yīfú.", "It might rain tomorrow, and it'll be cold. You should wear more clothes."],
+        ["A", "好，那我們後天再去公園吧。", "Hǎo, nà wǒmen hòutiān zài qù gōngyuán ba.", "OK, then let's go to the park the day after tomorrow."]],
+        qs:[{ lv:1, q:"What's the weather like today?", c:["Windy and a bit cold", "Hot and sunny", "Raining", "Very hot"] },
+            { lv:2, q:"What about tomorrow?", c:["It might rain", "It'll be hot", "It'll be sunny", "It'll be windy and hot"] },
+            { lv:3, q:"When will they go to the park?", c:["The day after tomorrow", "Tomorrow", "Today", "Next week"] }] }
+    ]},
+  { id:"di-school", name:"Class & home", emoji:"🏫", desc:"A Chinese class, and visiting a friend's home.",
+    rule:`<ul><li><b>第五課</b> lesson five · <b>這個字怎麼念？</b> how do you read this character? · <b>功課</b> homework · <b>太多了！</b> too many!</li>
+      <li>🏠 In Taiwan you take your shoes off at home: <b>要脫鞋子嗎？</b> should I take my shoes off?</li>
+      <li><b>請進</b> come in · <b>請坐</b> sit down · <b>你住幾樓？</b> which floor do you live on?</li></ul>`,
+    dialogues:[
+      { title:"Chinese class", lines:[
+        ["A", "大家好！今天我們學第五課。", "Dàjiā hǎo! Jīntiān wǒmen xué dì wǔ kè.", "Hello, everyone! Today we're doing lesson five."],
+        ["B", "老師，這個字怎麼念？", "Lǎoshī, zhège zì zěnme niàn?", "Teacher, how do you read this character?"],
+        ["A", "這個字念「書」。", "Zhège zì niàn \"shū\".", "This character is read \"shū\"."],
+        ["B", "是什麼意思？", "Shì shénme yìsi?", "What does it mean?"],
+        ["A", "就是我們上課用的書。好，今天的功課是寫十個句子。", "Jiù shì wǒmen shàngkè yòng de shū. Hǎo, jīntiān de gōngkè shì xiě shí ge jùzi.", "It's the book we use in class. OK, today's homework is to write ten sentences."],
+        ["B", "十個？太多了！", "Shí ge? Tài duō le!", "Ten? That's too many!"]],
+        qs:[{ lv:1, q:"Where are they?", c:["In a Chinese class", "In a bookshop", "In a library", "At home"] },
+            { lv:2, q:"Which lesson are they doing?", c:["Lesson 5", "Lesson 4", "Lesson 10", "Lesson 1"] },
+            { lv:2, q:"What does the student ask first?", c:["How to read a character", "What the homework is", "What time class ends", "Where his book is"] },
+            { lv:3, q:"How many sentences do they have to write? Type it.", num:"10" }] },
+      { title:"At a friend's home", lines:[
+        ["A", "請進！歡迎！", "Qǐng jìn! Huānyíng!", "Come in! Welcome!"],
+        ["B", "謝謝。要脫鞋子嗎？", "Xièxie. Yào tuō xiézi ma?", "Thanks. Should I take my shoes off?"],
+        ["A", "要，在家裡我們不穿鞋子。請坐！", "Yào, zài jiā lǐ wǒmen bù chuān xiézi. Qǐng zuò!", "Yes, we don't wear shoes at home. Please sit down!"],
+        ["B", "你家很漂亮！你住幾樓？", "Nǐ jiā hěn piàoliàng! Nǐ zhù jǐ lóu?", "Your home is lovely! Which floor do you live on?"],
+        ["A", "我住七樓。你要喝茶還是咖啡？", "Wǒ zhù qī lóu. Nǐ yào hē chá háishì kāfēi?", "The seventh floor. Would you like tea or coffee?"],
+        ["B", "茶，謝謝。", "Chá, xièxie.", "Tea, thanks."]],
+        qs:[{ lv:1, q:"What does the guest ask first?", c:["Whether to take his shoes off", "Where the toilet is", "Which floor it is", "Whether to sit down"] },
+            { lv:2, q:"What does the guest drink?", c:["Tea", "Coffee", "Water", "Juice"] },
+            { lv:3, q:"Which floor does the host live on? Type it.", num:"7" }] }
     ]}
 ];
 

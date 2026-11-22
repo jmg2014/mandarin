@@ -43,6 +43,12 @@ ZH.TOPICS.push({ id:"words", title:"Words", emoji:"🗂️", skills:[
   skillFor("places", "wo-places", "Places in town: station, bank, convenience store…"),
   skillFor("transport", "wo-transport", "MRT, bus, taxi, scooter…"),
   skillFor("actions", "wo-actions", "Everyday actions: eat, sleep, work, read…"),
-  skillFor("describe", "wo-describe", "Tired, hungry, hot, expensive…")
+  skillFor("describe", "wo-describe", "Tired, hungry, hot, expensive…"),
+  skillFor("opposites", "wo-opposites", "Tall / short, new / old, difficult / easy, fast / slow…"),
+  skillFor("body", "wo-body", "Head, hands, eyes… and being ill: 感冒, 生病, 藥."),
+  skillFor("time", "wo-time", "Last year, the day before yesterday, early, late, often, first… then…"),
+  skillFor("school", "wo-school", "Pen, homework, class, write, read, teach, ask…"),
+  skillFor("home", "wo-home", "Door, table, bed, floor, shoes, chopsticks…"),
+  skillFor("weather", "wo-weather", "Weather, wind, air, singing, ball games…")
 ]});
 })();

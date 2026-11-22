@@ -200,11 +200,20 @@ weather (今天很熱), likes and hobbies, at the hotel, phone call (喂？), at
 - [x] 每日聽力 daily session, streak, minutes listened, weakest skills, backup
 - [x] Tests: engine (33 checks), every skill (~13,000 questions), pinyin vs CC-CEDICT, words vs TOCFL
 
+### v2 – All of Novice 1 and Novice 2 ✅ (2026-11-22)
+- [x] Coverage test: every TOCFL Novice 1 and Novice 2 word (394) is heard on its own somewhere
+- [x] 6 new word themes: opposites, body & health, time words, school, at home, weather & free time (+ drinks and food additions)
+- [x] 7 little-words skills (hand-written sentences, wrong meanings that change just the little word): 也 都 只 還 又 跟 夠 · 可是 所以 因為 ·
+      覺得 最 非常 有點 比 一樣 像 · 能 應該 得 一定 可能 別 怕 愛 · 過 了 著 在 得 看見 聽見 · 上面 裡面 外面 附近 從 進 帶 拿 · 你們 大家 自己 它 貴姓 第一次…
+- [x] 4 new conversations: at the doctor's, the weather, a Chinese class, at a friend's home
+- [x] 萬 (ten thousand) in numbers, 日 in dates
+- [x] 📖 TOCFL map on the main page: every Novice 1 / Novice 2 / A1 word as not yet / heard / known
+- [x] Independent native-level review of the new content
+
 ### Next
 - [ ] Try it on the tablet for a week: is the voice clear on single syllables? Speed right? Too easy / too hard?
-- [ ] More conversations (restaurant, doctor, hotel, phone, weather) and more per situation
+- [ ] Finish A1 (TOCFL Beginner): about 250 words still missing; more conversations (restaurant, hotel, bank, post office)
 - [ ] Zhuyin (ㄅㄆㄇ) as a third transcript option
-- [ ] A TOCFL map on the main page (like lengua's curriculum map): which Novice/A1 words you've heard and mastered
 - [ ] Shadowing: a 🗣 button after each answer (listen, repeat aloud); later, the mic to compare
 - [ ] Simulation (like lengua's `tests/simulate.html`): how many days to finish A1 at 10 min/day
 - [ ] If needed: recorded MP3s (section 3) for the tones and the conversations

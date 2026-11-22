@@ -7,6 +7,7 @@
 <script src="../shared/progress.js"></script>
 <script src="../shared/engine.js"></script>
 <script src="../shared/zh.js"></script>
+<script src="../shared/tocfl.js"></script>
 <script>
 /* Plays sessions by tapping the real buttons, and checks what the engine does. Run with tests/check.py. */
 (async function(){
@@ -79,6 +80,14 @@ ok("text hidden before answering", !$("#audio").textContent.includes("nǐ hǎo")
 click(document.querySelector("#choices .choice"));
 ok("text shown after answering", $("#audio").textContent.includes("nǐ hǎo") && $("#audio").textContent.includes("hi"));
 
+// 5b. the TOCFL words heard are recorded for the TOCFL map
+const iWo = ZH.TOCFL.findIndex(w => w[0] === "我"), iKafei = ZH.TOCFL.findIndex(w => w[0] === "咖啡");
+ok("splits a sentence into TOCFL words", ZH.tocflWords("我要一杯咖啡。").includes(iWo) && ZH.tocflWords("我要一杯咖啡。").includes(iKafei));
+ok("一個兒子 is 一 個 兒子, not 個兒", !ZH.tocflWords("一個兒子").includes(ZH.TOCFL.findIndex(w => w[0].split("/").includes("個兒"))));
+ok("words heard in an answered question are recorded", ZH.prog.wordStatus(ZH.TOCFL.findIndex(w => w[0] === "你好")) !== "new" || ZH.prog.wordStatus(iWo) !== "new");
+ZH.prog.hear([iKafei], true); ZH.prog.hear([iKafei], true); ZH.prog.hear([iKafei], true);
+ok("a word is known after 3 right answers", ZH.prog.wordStatus(iKafei) === "known");
+
 // 6. settings: hiding pinyin
 ZH.prog.setSetting("pinyin", false);
 ok("pinyin hidden by the setting", !ZH.line("你好", "nǐ hǎo", "hello").includes("nǐ hǎo"));
@@ -104,6 +113,7 @@ try {
   ok(`daily session has 10–12 questions (got ${mix.length})`, mix.length >= 10 && mix.length <= 12);
   ok("daily session starts with tones", mix[0]._skill.startsWith("to-") && mix[1]._skill.startsWith("to-"));
   ok("main page shows 6 topics", W.document.querySelectorAll("#topics .mode").length === 6);
+  ok("main page shows the TOCFL map with 741 words", W.document.querySelectorAll("#tocflBody .wchip").length === 741);
 } catch(e){ ok("main page loads: " + e.message, false); }
 
 out.push("DONE");

@@ -9,11 +9,12 @@ const KEY = "mandarin-tw-v1";
 
 function read(k){ try { return JSON.parse(localStorage.getItem(k) || "null"); } catch(e){ return null; } }
 function write(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
-function blank(){ return { skills:{}, sound:true, days:{}, daily:{ last:null, streak:0, best:0 }, settings:{ pinyin:true, hanzi:true, speed:1 } }; }
+function blank(){ return { skills:{}, words:{}, sound:true, days:{}, daily:{ last:null, streak:0, best:0 }, settings:{ pinyin:true, hanzi:true, speed:1 } }; }
 function load(obj){
   const d = Object.assign(blank(), obj || {});
   if (!d.skills || typeof d.skills !== "object") d.skills = {};
   if (!d.days) d.days = {};
+  if (!d.words) d.words = {};
   if (!d.daily) d.daily = blank().daily;
   d.settings = Object.assign(blank().settings, d.settings || {});
   return d;
@@ -41,6 +42,10 @@ const P = ZH.prog = {
     if (ok){ s.correct++; s.streak++; } else s.streak = 0;
     P.logDay(ok, ms);                                  // saves too
   },
+  /* TOCFL words heard (the TOCFL map): { index in ZH.TOCFL: [times heard, times answered right] }.
+     A word counts as known after 3 right answers in questions where it was heard. */
+  hear(ids, ok){ ids.forEach(i => { const w = data.words[i] || (data.words[i] = [0, 0]); w[0]++; if (ok) w[1]++; }); P.save(); },
+  wordStatus(i){ const w = data.words[i]; return !w ? "new" : w[1] >= 3 ? "known" : "heard"; },
   /* answers per day: { "2026-11-22": { n, ok, ms } } */
   logDay(ok, ms){
     const d = data.days[today()] || (data.days[today()] = { n:0, ok:0, ms:0 });

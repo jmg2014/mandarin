@@ -72,17 +72,18 @@ const big = {
   desc:"百 bǎi hundred, 千 qiān thousand, and 零 for a gap.",
   rule:`<ul><li><b>百</b> bǎi = hundred: 三百 = 300, 三百五十 = 350</li><li><b>千</b> qiān = thousand: 一千兩百 = 1200</li>
     <li>Before 百 and 千, 2 is <b>兩</b> liǎng: 兩百 = 200, 兩千 = 2000</li>
-    <li><b>零</b> líng fills a gap: 一百零五 = 105, 兩千零三十 = 2030</li></ul>`,
+    <li><b>零</b> líng fills a gap: 一百零五 = 105, 兩千零三十 = 2030</li>
+    <li><b>萬</b> wàn = ten thousand: 一萬 = 10,000, 三萬五千 = 35,000 (Chinese counts in ten-thousands, not thousands)</li></ul>`,
   levels:[
     { name:"Hundreds", desc:"Choose a number like 300 or 350" },
     { name:"100–999", desc:"Type a number from 100 to 999" },
-    { name:"1000–9999", desc:"Type a number in the thousands" }
+    { name:"Thousands & 萬", desc:"Type a number in the thousands or ten-thousands" }
   ],
   make(level){
     let n;
     if (level === 1) n = rnd(1, 9) * 100 + (Math.random() < .5 ? rnd(1, 9) * 10 : 0);
     else if (level === 2) n = Math.random() < .3 ? rnd(1, 9) * 100 + rnd(1, 9) : rnd(100, 999);
-    else n = Math.random() < .3 ? rnd(1, 9) * 1000 + rnd(1, 99) : Math.random() < .5 ? rnd(10, 99) * 100 : rnd(1000, 9999);
+    else n = Math.random() < .25 ? rnd(1, 9) * 1000 + rnd(1, 99) : Math.random() < .3 ? rnd(1, 9) * 10000 + rnd(0, 9) * 1000 : Math.random() < .5 ? rnd(10, 99) * 100 : rnd(1000, 9999);
     const x = ZH.num(n), q = say(x.zh, x.py, String(n), RATE[level]);
     if (level === 1){
       const near = [n + 100, n - 100, n + 10, n - 10, Math.floor(n / 100) * 100 + (n % 100 ? 0 : 50), n + 200].filter(v => v >= 100 && v <= 999 && v !== n);
@@ -160,7 +161,7 @@ const days = {
   desc:"星期一 Monday … 星期天 Sunday, then months and dates.",
   rule:`<ul><li>Days are numbered: <b>星期一</b> xīngqíyī (week-1) = Monday … <b>星期六</b> = Saturday, <b>星期天</b> = Sunday.</li>
     <li>🇹🇼 In Taiwan you'll also hear <b>禮拜</b> lǐbài: 禮拜一 = Monday.</li>
-    <li>Months are numbered too: <b>五月</b> wǔ yuè = May. A date: <b>五月十號</b> wǔ yuè shí hào = May 10 (month first).</li>
+    <li>Months are numbered too: <b>五月</b> wǔ yuè = May. A date: <b>五月十號</b> wǔ yuè shí hào = May 10 (month first). In writing and announcements: <b>五月十日</b> rì.</li>
     <li><b>今天</b> today · <b>明天</b> tomorrow · <b>昨天</b> yesterday</li></ul>`,
   levels:[
     { name:"Days", desc:"Which day of the week?" },
@@ -176,6 +177,8 @@ const days = {
       [[mo, d + 1], [mo, d - 1], [mo + 1, d], [mo - 1, d], [mo, d + 10], [mo, d - 10], [mo === 4 ? 10 : 4, d]].forEach(([a, b]) => { if (a >= 1 && a <= 12 && b >= 1 && b <= LEN[a - 1]) cands.add(ZH.date(a, b).en); });
       cands.delete(x.en);
       while (cands.size < 3){ const a = rnd(1, 12), b = rnd(1, 28); if (ZH.date(a, b).en !== x.en) cands.add(ZH.date(a, b).en); }
+      // dates in writing and announcements use 日 rì instead of 號 hào (十月十日 is Taiwan's National Day)
+      if (Math.random() < .25){ x.zh = x.zh.replace("號", "日"); x.py = x.py.replace(" hào", " rì"); }
       const q = say(`今天${x.zh}。`, `Jīntiān ${x.py}.`, `Today is ${x.en}.`, .9);
       return Object.assign(q, { text:"What's the date?", choices:shuffle([x.en, ...sample([...cands], 3)]), answer:x.en, key:"d3" + x.en });
     }
