@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice check</title>
+<style>
+  :root { --bg:#fff; --fg:#222; --card:#f3f4f6; --ok:#15803d; --warn:#b45309; --accent:#2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --card:#222; --ok:#4ade80; --warn:#fbbf24; --accent:#60a5fa; } }
+  body { background:var(--bg); color:var(--fg); font:18px/1.5 system-ui, sans-serif; margin:0; padding:16px; max-width:700px; }
+  h1 { font-size:1.4em; margin:0 0 8px; }
+  .v { background:var(--card); border-radius:12px; padding:12px; margin:10px 0; display:flex; gap:12px; align-items:center; }
+  .v div { flex:1; }
+  .tw { color:var(--ok); font-weight:bold; }
+  .cn { color:var(--warn); }
+  button { font-size:1.2em; padding:8px 14px; border-radius:10px; border:0; background:var(--accent); color:#fff; }
+  #summary { font-weight:bold; margin:12px 0; }
+  small { opacity:.7; }
+</style>
+</head>
+<body>
+<h1>🔊 Mandarin voice check</h1>
+<p>Lists the Mandarin voices this browser can use. Tap ▶ to hear each one say:<br>
+<b>你好！我要一杯珍珠奶茶，五十五塊。媽、麻、馬、罵。</b></p>
+<div id="summary">Looking for voices…</div>
+<div id="list"></div>
+<p><small>All voices on this device: <span id="count">0</span>. If none appear, wait a few seconds and reload.</small></p>
+<script>
+const TEXT = "你好！我要一杯珍珠奶茶，五十五塊。媽、麻、馬、罵。";
+function kind(v){
+  const l = v.lang.replace("_","-").toLowerCase();
+  if (l === "zh-tw" || l.startsWith("cmn-hant") || /taiwan|台灣|臺灣/i.test(v.name)) return ["tw","Taiwan ✅"];
+  if (l === "zh-hk" || l.startsWith("yue")) return ["cn","Hong Kong (Cantonese) ✗"];
+  return ["cn","Mainland China accent"];
+}
+function show(){
+  const all = speechSynthesis.getVoices();
+  document.getElementById("count").textContent = all.length;
+  const zh = all.filter(v => /^(zh|cmn|yue)/i.test(v.lang));
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  zh.forEach(v => {
+    const [cls, label] = kind(v);
+    const row = document.createElement("div");
+    row.className = "v";
+    row.innerHTML = `<div><span class="${cls}">${label}</span><br>${v.name}<br><small>${v.lang}${v.localService ? " · on device" : " · online"}</small></div>`;
+    const b = document.createElement("button");
+    b.textContent = "▶";
+    b.onclick = () => { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(TEXT); u.voice = v; u.lang = v.lang; u.rate = 0.85; speechSynthesis.speak(u); };
+    row.appendChild(b);
+    list.appendChild(row);
+  });
+  const tw = zh.filter(v => kind(v)[0] === "tw").length;
+  document.getElementById("summary").innerHTML = !window.speechSynthesis ? "This browser has no speech support."
+    : tw ? `<span class="tw">✅ ${tw} Taiwan voice(s) found.</span>`
+    : zh.length ? `<span class="cn">Only mainland/other Chinese voices found — no Taiwan voice.</span>`
+    : `<span class="cn">No Chinese voices found.</span>`;
+}
+if (window.speechSynthesis){ show(); speechSynthesis.addEventListener("voiceschanged", show); setTimeout(show, 1500); }
+else show();
+</script>
+</body>
+</html>

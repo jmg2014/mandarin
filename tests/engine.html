@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Engine tests</title><link rel="stylesheet" href="../shared/style.css"></head>
+<body>
+<pre id="out" style="display:none"></pre>
+<script>try { localStorage.removeItem("mandarin-tw-v1"); } catch(e){}</script>
+<script src="../shared/progress.js"></script>
+<script src="../shared/engine.js"></script>
+<script src="../shared/zh.js"></script>
+<script>
+/* Plays sessions by tapping the real buttons, and checks what the engine does. Run with tests/check.py. */
+(async function(){
+const out = [], $ = ZH.$;
+const ok = (name, cond) => out.push((cond ? "PASS " : "FAIL ") + name);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const click = el => el.dispatchEvent(new MouseEvent("click", { bubbles:true }));
+const press = el => el.dispatchEvent(new PointerEvent("pointerdown", { bubbles:true }));
+let finished = null, answers = [];
+const start = (questions, extra) => { finished = null; answers = [];
+  ZH.startSession(Object.assign({ title:"Test", questions, requeue:true, maxQ:6, okDelay:10, onAnswer:(q, k) => answers.push(k), onFinish:r => { finished = r; } }, extra || {})); };
+const line = ZH.line("你好", "nǐ hǎo", "hello");
+
+// 1. choice: right answer, then automatic next question
+start([{ say:"你好", text:"Q1", choices:["hello", "bye"], answer:"hello", reveal:line }, { say:"再見", text:"Q2", choices:["hello", "bye"], answer:"bye" }]);
+await wait(20);
+ok("play screen shown", $("#play").classList.contains("active"));
+ok("replay and slow buttons", document.querySelectorAll("#audio .sayBtn").length === 2);
+click([...document.querySelectorAll("#choices .choice")].find(b => b.textContent === "hello"));
+ok("right answer recorded", answers[0] === true);
+ok("right answer marked green", !!document.querySelector("#choices .choice.right"));
+ok("transcript shown after answering", $("#reveal").textContent.includes("nǐ hǎo"));
+await wait(1600);
+ok("moves on by itself after a right answer", $("#qtext").textContent === "Q2");
+
+// 2. wrong answer: waits for Next, and the question comes back later
+click([...document.querySelectorAll("#choices .choice")].find(b => b.textContent === "hello"));
+ok("wrong answer recorded", answers[1] === false);
+ok("wrong answer waits for Next", !!$("#contBtn"));
+ok("explains the answer", $("#feedback").textContent.includes("bye"));
+click($("#contBtn")); await wait(20);
+ok("wrong question comes back", $("#qtext").textContent === "Q2" && $("#progress").textContent === "3 / 3");
+click([...document.querySelectorAll("#choices .choice")].find(b => b.textContent === "bye"));
+await wait(1200);
+ok("session finishes", Array.isArray(finished) && finished.length === 3);
+
+// 3. number pad
+start([{ say:"三百五十", text:"N", input:"num", answer:"350" }]);
+await wait(20);
+ok("number pad shown", $("#numpad").style.display === "");
+["3", "5", "5", "del", "0"].forEach(k => press(document.querySelector(`#numpad [data-n="${k}"]`)));
+ok("typing and delete", $("#answer").textContent.trim() === "350");
+press(document.querySelector('#numpad [data-n="ok"]'));
+ok("number checked", answers[0] === true);
+
+// 4. word order with pinyin on the cards
+start([{ say:"我要咖啡", text:"O", input:"order", items:["我|wǒ", "要|yào", "咖啡|kāfēi"], wait:true }]);
+await wait(20);
+ok("cards show pinyin", document.querySelectorAll("#board .pool .card .py").length === 3);
+for (const w of ["我", "要", "咖啡"]) click([...document.querySelectorAll("#board .pool button.card")].find(b => b.querySelector(".hz").textContent === w));
+ok("check button appears when all cards are placed", !!document.querySelector("#choices [data-check]"));
+click(document.querySelector("#choices [data-check]"));
+ok("right order accepted", answers[0] === true);
+ok("wait: true waits even when right", !!$("#contBtn"));
+
+// 4b. a decoy card: only the right cards count
+start([{ say:"我要咖啡", text:"O2", input:"order", items:["我|wǒ", "要|yào"], extra:["不要|bú yào"] }]);
+await wait(20);
+ok("decoy card is shown", document.querySelectorAll("#board .pool .card").length === 3);
+for (const w of ["我", "不要"]) click([...document.querySelectorAll("#board .pool button.card")].find(b => b.querySelector(".hz").textContent === w));
+ok("can't place more cards than needed", document.querySelectorAll("#board .built .card").length === 2);
+click(document.querySelector("#choices [data-check]"));
+ok("decoy in the answer is wrong", answers[0] === false);
+
+// 5. a conversation: bubbles hidden, then shown after answering
+start([{ say:[{ t:"你好", py:"nǐ hǎo", en:"hi", who:"A" }, { t:"你好", py:"nǐ hǎo", en:"hi", who:"B" }], bubbles:true, text:"D", choices:["a", "b"], answer:"a", wait:true }]);
+await wait(20);
+ok("one bubble per line", document.querySelectorAll("#audio .bubble").length === 2);
+ok("text hidden before answering", !$("#audio").textContent.includes("nǐ hǎo"));
+click(document.querySelector("#choices .choice"));
+ok("text shown after answering", $("#audio").textContent.includes("nǐ hǎo") && $("#audio").textContent.includes("hi"));
+
+// 6. settings: hiding pinyin
+ZH.prog.setSetting("pinyin", false);
+ok("pinyin hidden by the setting", !ZH.line("你好", "nǐ hǎo", "hello").includes("nǐ hǎo"));
+ZH.prog.setSetting("hanzi", false);
+ok("pinyin always shown when characters are hidden", ZH.line("你好", "nǐ hǎo", "hello").includes("nǐ hǎo"));
+ZH.prog.setSetting("pinyin", true); ZH.prog.setSetting("hanzi", true);
+
+// 7. progress: levels in the daily session, streak
+const P = ZH.prog;
+for (let i = 0; i < 4; i++) P.mixProgress("x", 1, true, "X");
+ok("4 right in a row in the daily session unlocks level 2", P.skill("x").level === 2);
+ok("daily streak starts at 1", P.dailyDone() === true && P.daily.streak === 1);
+ok("only once a day", P.dailyDone() === false);
+const b = P.backup(); P.resetAll(); P.restore(b);
+ok("backup and restore", P.skill("x").level === 2);
+
+// 8. the main page builds a daily session
+const fr = document.createElement("iframe"); fr.src = "../index.html"; fr.style.cssText = "width:400px;height:300px";
+document.body.appendChild(fr);
+await new Promise(r => fr.onload = r); await wait(100);
+try {
+  const W = fr.contentWindow, mix = W.ZH._buildMix();
+  ok(`daily session has 10–12 questions (got ${mix.length})`, mix.length >= 10 && mix.length <= 12);
+  ok("daily session starts with tones", mix[0]._skill.startsWith("to-") && mix[1]._skill.startsWith("to-"));
+  ok("main page shows 6 topics", W.document.querySelectorAll("#topics .mode").length === 6);
+} catch(e){ ok("main page loads: " + e.message, false); }
+
+out.push("DONE");
+$("#out").textContent = out.join("\n");
+})();
+</script>
+</body>
+</html>

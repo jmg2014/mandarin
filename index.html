@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f7a68">
+<title>聽力 Mandarin</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="shared/style.css">
+<style>
+/* main page only */
+.daily{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--accent);color:var(--accent-ink);
+  border-radius:22px;padding:20px 22px;margin:16px 0 6px;box-shadow:0 5px 0 var(--accent-dark)}
+.daily h2{margin:0 0 4px;font-size:1.45rem}
+.daily p{margin:0;opacity:.95}
+.daily .btn{background:#fff;color:var(--accent-dark);border:none;font-size:1.25rem;padding:14px 26px}
+.mode .step{display:inline-block;font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+details.panel > summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}
+details.panel > summary::-webkit-details-marker{display:none}
+details.panel > summary h2{margin:0}
+details.panel > summary::after{content:"▾";font-size:1.4rem;color:var(--muted)}
+details[open].panel > summary::after{content:"▴"}
+.wk{position:relative;max-width:560px}
+.wk svg{width:100%;height:auto;display:block}
+.wk-bar{fill:var(--accent)}
+.wk-hit{fill:transparent;cursor:pointer}
+.wk-hit:hover + .wk-bar,.wk-hit.on + .wk-bar{fill:var(--accent-dark)}
+.wk-tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:10px;padding:6px 10px;font-size:.9rem;white-space:nowrap;transform:translate(-50%,-110%);display:none}
+.ch-grid{stroke:var(--line);stroke-width:1.5}
+.ch-axis{stroke:var(--ink)}
+.ch-num{fill:var(--muted);font-weight:700}
+.weak{display:grid;gap:8px}
+.weak a{display:flex;justify-content:space-between;gap:10px;background:var(--key);border-radius:12px;padding:10px 12px;color:var(--ink);text-decoration:none}
+.weak small{color:var(--muted)}
+.dtable{border-collapse:separate;border-spacing:0;margin:8px 0;background:var(--card);border:2px solid var(--line);border-radius:14px;overflow:hidden;font-size:.95rem}
+.dtable th,.dtable td{padding:6px 12px;border-bottom:1px solid var(--line);text-align:center}
+.dtable tr:last-child td{border-bottom:none}
+.dtable th{background:var(--key)}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:none}
+.setrow label{font-weight:700}
+.setrow small{display:block;color:var(--muted);font-weight:400}
+.toggle{display:flex;gap:6px}
+.toggle button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-weight:700}
+.toggle button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.voice{background:var(--key);border-radius:12px;padding:10px 12px;margin-top:6px}
+.voice.warn{background:var(--gold);color:var(--gold-ink)}
+</style>
+</head>
+<body>
+<section id="hub" class="screen active">
+  <div class="top">
+    <h1>👂 聽力 Mandarin <small class="muted" style="font-size:.5em">Taiwan</small></h1>
+    <button id="soundBtn" class="ghost" aria-label="Sound effects on or off">🔔</button>
+  </div>
+
+  <div class="daily" id="daily"></div>
+
+  <div id="topics" class="modes"></div>
+
+  <details class="panel" id="progressPanel">
+    <summary><h2>📈 My progress</h2></summary>
+    <div id="progressBody"></div>
+  </details>
+
+  <details class="panel" id="settingsPanel">
+    <summary><h2>⚙️ Settings & voice</h2></summary>
+    <div id="settingsBody"></div>
+  </details>
+
+  <div class="panel">
+    <h2>💾 Backup</h2>
+    <p class="muted">Progress is saved only on this device. Save a copy so you don't lose it, or to move it to another device.</p>
+    <div class="btnrow" style="justify-content:flex-start;margin-top:10px">
+      <button id="backupBtn" class="btn primary">⬇️ Save a copy</button>
+      <button id="restoreBtn" class="btn">⬆️ Restore a copy</button>
+      <input id="restoreFile" type="file" accept=".json,application/json" hidden>
+    </div>
+    <p id="backupMsg" class="muted" style="min-height:1.2em"></p>
+  </div>
+  <button id="resetBtn" class="link">Delete ALL progress</button>
+</section>
+
+<script src="shared/progress.js"></script>
+<script src="shared/engine.js"></script>
+<script src="shared/zh.js"></script>
+<script src="shared/words.js"></script>
+<!-- every topic's skills.js: for progress and the daily session -->
+<script src="tones/skills.js"></script>
+<script src="numbers/skills.js"></script>
+<script src="words/skills.js"></script>
+<script src="phrases/skills.js"></script>
+<script src="sentences/skills.js"></script>
+<script src="dialogues/skills.js"></script>
+<script>
+(function(){
+"use strict";
+const { $, prog:P, shuffle } = ZH;
+
+/* The topics, in the suggested order */
+const TOPICS = [
+  { id:"tones",     path:"tones/",     step:"Start here", desc:"The 4 tones, tone pairs, sounds like zh / j / z and ü" },
+  { id:"numbers",   path:"numbers/",   step:"Start here", desc:"0–9999, prices, times, days and dates, how many" },
+  { id:"words",     path:"words/",     step:"Then",       desc:"Drinks, food, people, places, transport, actions" },
+  { id:"phrases",   path:"phrases/",   step:"Then",       desc:"Thank you, sorry, I don't understand… and questions" },
+  { id:"sentences", path:"sentences/", step:"Next",       desc:"是, 要, 喜歡, 有, 在 and making plans" },
+  { id:"dialogues", path:"dialogues/", step:"Next",       desc:"Short conversations: meeting people, food, shopping, travel" }
+];
+const topicOf = id => ZH.TOPICS.find(T => T.id === id);
+const allSkills = () => ZH.TOPICS.flatMap(T => T.skills.map(s => ({ s, T })));
+
+/* ---------- topic tiles ---------- */
+function renderTopics(){
+  $("#topics").innerHTML = TOPICS.map(t => {
+    const T = topicOf(t.id);
+    return `<a class="mode" href="${t.path}"><span class="step">${t.step}</span><span class="emoji">${T.emoji}</span><b>${T.title}</b><small>${t.desc}</small>
+      <small><b style="font-size:1rem;color:var(--ink)">⭐ ${P.topicStars(T)} of ${T.skills.length}</b></small></a>`;
+  }).join("");
+}
+
+/* ---------- the daily session (每日聽力) ----------
+   12 questions: a tone warm-up first, then numbers, then the skills that need it most, and a conversation at the end
+   once conversations are started. Skills still being learned get most of the questions; mastered ones come back after a week. */
+function status(id){ const r = P.peek(id); return !r || !r.seen ? (r && r.star ? "mastered" : "new") : r.star ? "mastered" : "learning"; }
+function renderDaily(){
+  const d = P.daily, done = d.last === P.today(), yesterday = P.dayKey(new Date(Date.now() - 864e5));
+  const streak = done || d.last === yesterday ? d.streak : 0;
+  const line = done ? `✓ Done today! 🔥 ${streak} ${streak === 1 ? "day" : "days"} in a row. Another one?`
+             : streak ? `Keep your 🔥 ${streak}-day streak going!`
+             : "About 10 minutes: tones, numbers, and what you need most.";
+  $("#daily").innerHTML = `<div><h2>🌞 每日聽力 Daily listening</h2><p>${line}</p></div><button class="btn" id="mixBtn">${done ? "Again" : "Start"} ▶</button>`;
+  $("#mixBtn").onclick = startMix;
+}
+function entry(s, T){
+  const r = P.peek(s.id), st = status(s.id);
+  if (st === "new") return { s, T, w:1, lv:1, isNew:true };
+  if (st === "mastered"){ const days = r && r.lastDate ? (Date.now() - new Date(r.lastDate)) / 864e5 : 99; return { s, T, w:days >= 7 ? 3 : .5, lv:3 }; }
+  return { s, T, w:r.last === 0 ? 6 : 4, lv:r.level };
+}
+/* new skills are only offered in order: a skill is offered once the one before it in its topic has been played */
+function offered(T){
+  return T.skills.filter((s, i) => i === 0 || (P.peek(T.skills[i - 1].id) || {}).seen >= 5 || status(s.id) !== "new");
+}
+function buildMix(){
+  const qs = [], per = {}, keys = new Set();
+  /* up to n questions from a pool: at most perMax per skill, and at most maxNew skills not played before */
+  const take = (pool, n, maxNew, perMax) => {
+    let news = 0;
+    for (let guard = 0; guard < 300 && n > 0 && pool.length; guard++){
+      const [p] = ZH.weightedPick(pool, pool.map(x => x.w), 1);
+      if ((per[p.s.id] || 0) >= (perMax || 2) || (p.isNew && !per[p.s.id] && news >= maxNew)) continue;
+      let q; try { q = p.s.make(p.lv); } catch(e){ continue; }
+      const k = ZH.keyOf(q);
+      if (keys.has(k)) continue;
+      keys.add(k);
+      if (p.isNew && !per[p.s.id]) news++;
+      per[p.s.id] = (per[p.s.id] || 0) + 1;
+      qs.push(Object.assign(q, { _skill:p.s.id, _lv:p.lv, _name:p.s.name, tag:`${p.T.emoji} ${p.s.name}` }));
+      n--;
+    }
+  };
+  const pool = id => offered(topicOf(id)).map(s => entry(s, topicOf(id)));
+  const warm = []; take(pool("tones"), 2, 1); warm.push(...qs.splice(0));
+  take(pool("numbers"), 2, 1); const nums = qs.splice(0);
+  const dlgStarted = topicOf("dialogues").skills.some(s => status(s.id) !== "new");
+  const others = ["words", "phrases", "sentences"].concat(dlgStarted ? [] : ["tones", "numbers"]).flatMap(pool)
+    .concat(dlgStarted ? pool("tones").concat(pool("numbers")).map(x => Object.assign({}, x, { w:x.w / 2 })) : []);
+  take(others, dlgStarted ? 6 : 8, 2); const mid = shuffle(qs.splice(0));
+  if (dlgStarted) take(pool("dialogues"), 2, 0);
+  const end = qs.splice(0);
+  // not enough yet (the first days, when few skills are open): more from the skills already in the session
+  const total = warm.length + nums.length + mid.length + end.length;
+  if (total < 10){
+    const inMix = new Set(Object.keys(per));
+    take(TOPICS.flatMap(t => pool(t.id)).filter(x => inMix.has(x.s.id)), 10 - total, 0, 4);
+    mid.push(...qs.splice(0));
+  }
+  return warm.concat(nums, shuffle(mid), end);
+}
+ZH._buildMix = buildMix;                               // for testing
+let unlocked = [];
+function startMix(){
+  unlocked = [];
+  ZH.startSession({ title:"🌞 Daily listening", questions:buildMix(), requeue:true, maxQ:16,
+    onAnswer:(q, ok, ms) => {
+      P.record(q._skill, ok, ms);
+      if (!q.retry){ const m = P.mixProgress(q._skill, q._lv, ok, q._name); if (m) unlocked.push(m); }
+    },
+    onFinish:finishMix });
+}
+function finishMix(res){
+  const first = res.filter(r => !r.q.retry), score = first.filter(r => r.ok).length;
+  const fresh = P.dailyDone(), d = P.daily;
+  const msg = (fresh ? `🔥 ${d.streak} ${d.streak === 1 ? "day" : "days"} in a row! ` : "") +
+    (score === first.length ? "All right! 太棒了！" : score >= first.length * .75 ? "Very good work!" : "Good practice. The hard ones will come back tomorrow.");
+  ZH.showResults({ title:fresh ? "Daily listening done! 🌞" : "Done! 🌞", score:`${score} / ${first.length}`, msg:unlocked.length ? `${msg} ${unlocked.join(" · ")}` : msg,
+    missed:res.filter(r => !r.ok), buttons:[["Another round", startMix, ""], ["Home", goHome, "primary"]], celebrate:fresh || unlocked.length > 0 });
+}
+function goHome(){ ZH.stopSession(); renderAll(); ZH.show("hub"); }
+ZH.onQuit = goHome;
+
+/* ---------- progress ---------- */
+const mins = ms => Math.round(ms / 60000);
+function mondayOf(key){ const d = new Date(key + "T12:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return P.dayKey(d); }
+function weeks(n){
+  const out = [], start = new Date(mondayOf(P.today()) + "T12:00");
+  for (let i = n - 1; i >= 0; i--){ const d = new Date(start); d.setDate(d.getDate() - 7 * i); out.push({ key:P.dayKey(d), n:0, ok:0, ms:0 }); }
+  for (const [k, v] of Object.entries(P.days)){ const w = out.find(x => x.key === mondayOf(k)); if (w){ w.n += v.n; w.ok += v.ok; w.ms += v.ms; } }
+  return out;
+}
+const shortDate = key => new Date(key + "T12:00").toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+/* minutes per week: one series, so no legend; a tooltip on each bar, and a table underneath */
+function weekChart(ws){
+  const W = 560, H = 190, left = 40, top = 14, bottom = 30, pw = (W - left - 8) / ws.length, bw = Math.min(40, pw * .55);
+  const val = w => mins(w.ms);
+  const max = Math.max(10, ...ws.map(val)), mag = Math.pow(10, Math.floor(Math.log10(max))), step = mag * (max / mag > 5 ? 2 : 1);
+  const top2 = Math.ceil(max / step) * step, y = v => top + (H - top - bottom) * (1 - v / top2);
+  let s = "";
+  for (let v = 0; v <= top2; v += step) s += `<line x1="${left}" y1="${y(v)}" x2="${W - 4}" y2="${y(v)}" class="ch-grid"/><text x="${left - 6}" y="${y(v) + 4}" class="ch-num" style="text-anchor:end;font-size:12px">${v}</text>`;
+  ws.forEach((w, i) => {
+    const cx = left + pw * i + pw / 2, x = cx - bw / 2, yy = y(val(w)), h = y(0) - yy, r = Math.min(4, h / 2);
+    const tip = `Week of ${shortDate(w.key)}: ${val(w)} min, ${w.n} answer${w.n === 1 ? "" : "s"}${w.n ? `, ${Math.round(w.ok / w.n * 100)}% right` : ""}`;
+    s += `<rect x="${cx - pw / 2}" y="${top}" width="${pw}" height="${H - top - bottom}" class="wk-hit" data-tip="${tip}"/>`;
+    s += h > 0 ? `<path d="M${x},${y(0)} V${yy + r} Q${x},${yy} ${x + r},${yy} H${x + bw - r} Q${x + bw},${yy} ${x + bw},${yy + r} V${y(0)} Z" class="wk-bar"/>` : `<g></g>`;
+    s += `<text x="${cx}" y="${H - 10}" class="ch-num" style="text-anchor:middle;font-size:12px">${shortDate(w.key)}</text>`;
+  });
+  s += `<line x1="${left}" y1="${y(0)}" x2="${W - 4}" y2="${y(0)}" class="ch-axis" style="stroke-width:1.5"/>`;
+  return `<div class="wk"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Minutes of listening each week, last ${ws.length} weeks">${s}</svg><div class="wk-tip"></div></div>`;
+}
+const table = (head, rows) => `<table class="dtable"><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+function renderProgress(){
+  const days = P.days, keys = Object.keys(days).sort();
+  const last7 = keys.filter(k => (Date.now() - new Date(k + "T12:00")) / 864e5 < 7).map(k => days[k]);
+  const sum = (arr, f) => arr.reduce((a, x) => a + x[f], 0);
+  const n7 = sum(last7, "n"), ok7 = sum(last7, "ok"), ms7 = sum(last7, "ms"), msAll = sum(Object.values(days), "ms");
+  const ws = weeks(8);
+  const weak = allSkills().map(({ s, T }) => ({ s, T, r:P.peek(s.id) })).filter(x => x.r && x.r.seen >= 5 && !x.r.star)
+    .sort((a, b) => a.r.correct / a.r.seen - b.r.correct / b.r.seen).slice(0, 5);
+  const stars = allSkills().filter(({ s }) => { const r = P.peek(s.id); return r && r.star; }).length;
+  const pathOf = s => { const T = ZH.TOPICS.find(T => T.skills.includes(s)); return `${T.id}/#${s.id}`; };
+  $("#progressBody").innerHTML = `
+    <div class="records" style="margin-top:12px">
+      <div class="rec"><small>Listening, last 7 days</small><b>${mins(ms7)}</b> <small>minutes</small></div>
+      <div class="rec"><small>Listening, all time</small><b>${mins(msAll)}</b> <small>minutes</small></div>
+      <div class="rec"><small>Right first time</small><b>${n7 ? Math.round(ok7 / n7 * 100) + "%" : "–"}</b><small>last 7 days (${n7} answers)</small></div>
+      <div class="rec"><small>Daily streak</small><b>${P.daily.streak || 0}</b> <small>best: ${P.daily.best || 0} days</small></div>
+      <div class="rec"><small>Skills mastered</small><b>${stars}</b> <small>of ${allSkills().length} ⭐</small></div>
+    </div>
+    <h3>Minutes each week</h3>
+    ${weekChart(ws)}
+    <details style="margin-top:6px"><summary class="muted" style="cursor:pointer">Show as a table</summary>
+      ${table(["Week of", "Minutes", "Answers", "Right"], ws.slice().reverse().map(w => [shortDate(w.key), mins(w.ms), w.n, w.n ? Math.round(w.ok / w.n * 100) + "%" : "–"]))}
+    </details>
+    <h3>Hardest for you right now</h3>
+    ${weak.length ? `<div class="weak">${weak.map(({ s, T, r }) => `<a href="${pathOf(s)}"><span>${s.emoji} ${s.name}<br><small>${T.title} · level ${r.level} of 3</small></span>
+      <span style="text-align:right"><b>${Math.round(r.correct / r.seen * 100)}%</b><br><small>of ${r.seen} right</small></span></a>`).join("")}</div>`
+      : `<p class="muted">Not enough answers yet. This fills in after a few sessions.</p>`}
+    <p class="muted" style="margin-top:14px">Minutes count the time spent on each question (at most 1½ minutes each).</p>`;
+  const box = $("#progressBody .wk"), tipEl = box.querySelector(".wk-tip");
+  box.querySelectorAll(".wk-hit").forEach(h => {
+    const show = () => {
+      box.querySelectorAll(".wk-hit.on").forEach(o => o.classList.remove("on")); h.classList.add("on");
+      const b = h.getBoundingClientRect(), o = box.getBoundingClientRect();
+      tipEl.textContent = h.dataset.tip; tipEl.style.display = "block";
+      tipEl.style.left = Math.min(Math.max(b.left - o.left + b.width / 2, 130), o.width - 130) + "px"; tipEl.style.top = "40px";
+    };
+    h.addEventListener("pointerenter", show); h.addEventListener("click", show);
+    h.addEventListener("pointerleave", () => { h.classList.remove("on"); tipEl.style.display = "none"; });
+  });
+}
+
+/* ---------- settings and voice ---------- */
+function renderSettings(){
+  const st = P.settings, v = ZH.voiceInfo();
+  const tog = (key, opts) => `<div class="toggle" data-set="${key}">${opts.map(([val, label]) => `<button data-v="${val}" class="${String(st[key]) === String(val) ? "on" : ""}">${label}</button>`).join("")}</div>`;
+  const voice = v.tw.length ? `<div class="voice">✅ Taiwan voice: <b>${ZH.esc(v.tw[0].name)}</b>${v.tw[0].localService ? " (on the device, works offline)" : " (online)"}${v.tw.length > 1 ? `<br>Second voice for conversations: ${ZH.esc(v.tw[1].name)}` : "<br>In conversations the second speaker uses a lower pitch."}</div>`
+    : v.other.length ? `<div class="voice warn">⚠️ Only a mainland Mandarin voice (${ZH.esc(v.other[0].name)}). It works, but the accent isn't Taiwanese. In the device settings → Text-to-speech → install <b>Chinese (Taiwan)</b>.</div>`
+    : `<div class="voice warn">⚠️ No Mandarin voice on this device or browser. Settings → Text-to-speech → choose <i>Speech Services by Google</i> → install <b>Chinese (Taiwan)</b>. Then reopen the app.</div>`;
+  $("#settingsBody").innerHTML = `
+    <div class="setrow"><label>Pinyin in transcripts<small>The letters with tone marks: nǐ hǎo</small></label>${tog("pinyin", [[true, "Show"], [false, "Hide"]])}</div>
+    <div class="setrow"><label>Characters in transcripts<small>Traditional characters, as used in Taiwan: 你好</small></label>${tog("hanzi", [[true, "Show"], [false, "Hide"]])}</div>
+    <div class="setrow"><label>Speaking speed<small>Changes every exercise. Each one also has 🐢 for slow.</small></label>${tog("speed", [[0.8, "Slower"], [1, "Normal"], [1.15, "Faster"]])}</div>
+    <div class="setrow" style="display:block"><label>Voice</label>${voice}
+      <div class="btnrow" style="justify-content:flex-start;margin-top:10px"><button class="btn" id="testVoice">🔊 Test: 你好！歡迎！</button>
+      <a class="btn" href="tests/voices.html" style="text-decoration:none;color:inherit">All voices on this device</a></div></div>`;
+}
+$("#settingsBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-set] [data-v]");
+  if (b){
+    const key = b.parentElement.dataset.set, raw = b.dataset.v;
+    P.setSetting(key, raw === "true" ? true : raw === "false" ? false : Number(raw));
+    renderSettings(); return;
+  }
+  if (e.target.closest("#testVoice")) ZH.speak([{ t:"你好！", who:"A" }, { t:"歡迎！", who:"B" }], { rate:.85 });
+});
+try { speechSynthesis.addEventListener("voiceschanged", () => setTimeout(renderSettings, 50)); } catch(e){}
+
+function renderAll(){
+  renderDaily(); renderTopics(); renderProgress(); renderSettings();
+  $("#soundBtn").textContent = P.sound ? "🔔" : "🔕";
+}
+
+$("#soundBtn").addEventListener("click", () => { P.sound = !P.sound; renderAll(); });
+$("#resetBtn").addEventListener("click", () => {
+  if (confirm("Delete ALL progress in every topic (stars, levels, streak)? This can't be undone.")){ P.resetAll(); location.reload(); }
+});
+
+/* ---------- backup & restore ---------- */
+function backupMsg(t){ $("#backupMsg").textContent = t; }
+$("#backupBtn").addEventListener("click", () => {
+  try {
+    const name = `mandarin-backup-${P.today()}.json`;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(P.backup(), null, 1)], { type:"application/json" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    backupMsg(`✓ Saved "${name}" (look in Downloads).`);
+  } catch(e){ backupMsg("Couldn't save a copy on this device."); }
+});
+$("#restoreBtn").addEventListener("click", () => $("#restoreFile").click());
+$("#restoreFile").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  let obj;
+  try { obj = JSON.parse(await f.text()); } catch(err){ backupMsg("That file isn't a backup of this app."); return; }
+  const when = obj && obj.savedAt ? new Date(obj.savedAt).toLocaleString("en-GB") : "an unknown date";
+  if (!confirm(`Replace the progress on this device with the copy from ${when}?`)) return;
+  try { P.restore(obj); renderAll(); backupMsg("✓ Progress restored."); }
+  catch(err){ backupMsg("That file isn't a backup of this app."); }
+});
+
+ZH.registerOffline("sw.js");
+renderAll();
+if (location.hash === "#progress") $("#progressPanel").open = true;
+if (location.hash === "#settings") $("#settingsPanel").open = true;
+})();
+</script>
+</body>
+</html>
